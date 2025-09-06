@@ -60,15 +60,15 @@ export function CurrentTripsCard() {
   }, [fetchTrips, supabase]);
 
   return (
-    <Card className="glassmorphism-card border-neon-blue/30 lg:col-span-2">
+    <Card className="glassmorphism-card border-primary-accent/30 lg:col-span-2">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-neon-blue">Current Trips</CardTitle>
+        <CardTitle className="text-primary-accent">Current Trips</CardTitle>
         <Button
           variant="outline"
           size="sm"
           onClick={fetchTrips}
           disabled={loading}
-          className="bg-transparent border-neon-blue/30 text-neon-blue hover:bg-neon-blue/10"
+          className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
         >
           <RefreshCw className={loading ? "h-4 w-4 mr-2 animate-spin" : "h-4 w-4 mr-2"} />
           Refresh
@@ -80,10 +80,10 @@ export function CurrentTripsCard() {
         ) : trips.length === 0 ? (
           <div className="text-center text-gray-400">No current trips.</div>
         ) : (
-          <ScrollArea className="h-[300px] w-full rounded-md border border-neon-blue/20">
+          <ScrollArea className="h-[300px] w-full rounded-md border border-primary-accent/20">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-800/50 text-neon-green">
+                <TableRow className="bg-gray-800/50 text-secondary-accent">
                   <TableHead>Driver</TableHead>
                   <TableHead>Vehicle</TableHead>
                   <TableHead>From</TableHead>
@@ -102,11 +102,11 @@ export function CurrentTripsCard() {
                     <TableCell className="text-gray-300">{trip.vehicles?.reg_no || 'N/A'}</TableCell>
                     <TableCell className="text-gray-300">{trip.origin}</TableCell>
                     <TableCell className="text-gray-300">{trip.destination}</TableCell>
-                    <TableCell className="text-neon-yellow">{trip.current_location || 'N/A'}</TableCell>
-                    <TableCell className="text-neon-green">${trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="text-warning-accent">{trip.current_location || 'N/A'}</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
                     <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || '0.00'} km</TableCell>
                     <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || '0.00'} km/h</TableCell>
-                    <TableCell className={`font-semibold ${trip.status === 'started' ? 'text-neon-blue' : 'text-neon-purple'}`}>
+                    <TableCell className={`font-semibold ${trip.status === 'started' ? 'text-primary-accent' : 'text-warning-accent'}`}>
                       {trip.status}
                     </TableCell>
                   </TableRow>

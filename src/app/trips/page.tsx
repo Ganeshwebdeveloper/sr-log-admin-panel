@@ -5,7 +5,7 @@ import React from 'react';
 export default function TripsPage() {
   return (
     <div className="flex flex-col gap-6 p-4 lg:p-6">
-      <h1 className="text-3xl font-bold text-neon-blue">Trips Management</h1>
+      <h1 className="text-3xl font-bold text-primary-accent">Trips Management</h1>
       <p className="text-gray-300">This page will display a table of trips, allow assigning new trips, and provide filtering options.</p>
     </div>
   );

@@ -23,6 +23,7 @@ export function ChatBox() {
   const supabase = supabaseBrowser;
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Function to fetch initial messages
   const fetchInitialMessages = useCallback(async () => {
@@ -139,22 +140,91 @@ export function ChatBox() {
     }
   };
 
-  const handleFileUpload = (type: 'image' | 'voice') => {
-    toast.info(`Image/Voice upload not yet implemented. Requires Supabase Storage setup.`);
-    // Future implementation would involve:
-    // 1. Opening file input
-    // 2. Uploading file to Supabase Storage
-    // 3. Getting public URL
-    // 4. Inserting message with type 'image' or 'voice' and file_url
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'voice') => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    const senderId = user?.id || 'admin';
+    const now = new Date().toISOString();
+    const clientTempId = crypto.randomUUID();
+
+    // Optimistic update for file upload
+    const optimisticMessage: Message = {
+      id: clientTempId,
+      sender: senderId,
+      message: `Uploading ${type}...`, // Placeholder message
+      type: type,
+      created_at: now,
+      file_url: URL.createObjectURL(file), // Temporary URL for immediate display
+      is_optimistic: true,
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
+
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      if (!token) {
+        throw new Error('No access token found for file upload.');
+      }
+
+      const response = await fetch('/api/upload-chat-file', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'x-file-name': file.name,
+          'x-file-type': file.type,
+        },
+        body: file,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'File upload failed');
+      }
+
+      const { fileUrl } = await response.json();
+
+      // Insert message with the public URL
+      const { error } = await supabase.from('messages').insert({
+        sender: senderId,
+        message: type === 'image' ? 'Image shared' : 'Voice note shared',
+        type: type,
+        file_url: fileUrl,
+      });
+
+      if (error) {
+        throw error;
+      }
+      toast.success(`${type === 'image' ? 'Image' : 'Voice note'} sent successfully!`);
+
+    } catch (error: any) {
+      toast.error(`Failed to upload ${type}: ${error.message}`);
+      console.error('Error uploading file:', error);
+      // Revert optimistic update if upload fails
+      setMessages((prev) => prev.filter((msg) => msg.id !== clientTempId));
+    } finally {
+      setLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''; // Clear file input
+      }
+    }
+  };
+
+  const triggerFileInput = (type: 'image' | 'voice') => {
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = type === 'image' ? 'image/*' : 'audio/*';
+      fileInputRef.current.dataset.fileType = type; // Store type for handler
+      fileInputRef.current.click();
+    }
   };
 
   return (
-    <Card className="glassmorphism-card border-neon-blue/30 lg:col-span-1 flex flex-col">
+    <Card className="glassmorphism-card border-primary-accent/30 lg:col-span-1 flex flex-col">
       <CardHeader>
-        <CardTitle className="text-neon-blue">Voice/Chat Box</CardTitle>
+        <CardTitle className="text-primary-accent">Voice/Chat Box</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 p-4 pt-0">
-        <ScrollArea className="flex-1 h-[250px] w-full rounded-md border border-neon-blue/20 p-2 mb-4">
+        <ScrollArea className="flex-1 h-[250px] w-full rounded-md border border-primary-accent/20 p-2 mb-4">
           <div className="space-y-3">
             {loading ? (
               <div className="text-center text-gray-400">Loading messages...</div>
@@ -170,8 +240,8 @@ export function ChatBox() {
                     className={
                       `max-w-[70%] p-3 rounded-lg text-sm ` +
                       (msg.sender === (user?.id || 'admin')
-                        ? 'bg-neon-blue/30 text-white border border-neon-blue/50'
-                        : 'bg-gray-700/50 text-gray-200 border border-gray-600/50')
+                        ? 'bg-primary-accent/30 text-white border border-primary-accent/50' // Admin message style
+                        : 'bg-gray-700/50 text-gray-200 border border-gray-600/50') // Driver message style
                     }
                   >
                     <p className="font-semibold text-xs mb-1">
@@ -200,15 +270,21 @@ export function ChatBox() {
             placeholder="Type your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 bg-gray-700/50 border-neon-blue/20 text-white focus:border-neon-blue focus:ring-neon-blue"
+            className="flex-1 bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
             disabled={loading}
+          />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={(e) => handleFileSelect(e, fileInputRef.current?.dataset.fileType as 'image' | 'voice')}
+            className="hidden"
           />
           <Button
             type="button"
             variant="outline"
             size="icon"
-            onClick={() => handleFileUpload('image')}
-            className="bg-transparent border-neon-blue/30 text-neon-blue hover:bg-neon-blue/10"
+            onClick={() => triggerFileInput('image')}
+            className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
             disabled={loading}
           >
             <Image className="h-4 w-4" />
@@ -217,15 +293,15 @@ export function ChatBox() {
             type="button"
             variant="outline"
             size="icon"
-            onClick={() => handleFileUpload('voice')}
-            className="bg-transparent border-neon-blue/30 text-neon-blue hover:bg-neon-blue/10"
+            onClick={() => triggerFileInput('voice')}
+            className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
             disabled={loading}
           >
             <Mic className="h-4 w-4" />
           </Button>
           <Button
             type="submit"
-            className="bg-neon-blue hover:bg-neon-blue/80 text-black font-bold"
+            className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold"
             disabled={loading || !newMessage.trim()}
           >
             <Send className="h-4 w-4" />

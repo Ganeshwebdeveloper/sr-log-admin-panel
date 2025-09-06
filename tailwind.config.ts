@@ -60,11 +60,12 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			},
-            // Custom Neon Colors
-            'neon-blue': '#00F0FF',
-            'neon-green': '#39FF14',
-            'neon-purple': '#BC13FE',
-            'neon-yellow': '#FFF000',
+            // New professional dark theme colors
+            'primary-accent': '#4F46E5', // Indigo-600
+            'secondary-accent': '#10B981', // Emerald-500
+            'warning-accent': '#F59E0B', // Amber-500
+            'text-light': '#E2E8F0', // Slate-200
+            'text-dark': '#94A3B8', // Slate-400
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Car, Users, Bell } from 'lucide-react'; // Added Bell import
+import { Car, Users, Bell } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -56,7 +56,7 @@ export function StatsWidgets() {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="glassmorphism-card border-neon-blue/30 animate-pulse">
+          <Card key={i} className="glassmorphism-card border-primary-accent/30 animate-pulse">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="h-4 w-24 bg-gray-700 rounded"></div>
               <div className="h-4 w-4 bg-gray-700 rounded-full"></div>
@@ -74,9 +74,9 @@ export function StatsWidgets() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Link href="/drivers" className="block">
-        <Card className="glassmorphism-card border-neon-blue/30 hover:border-neon-green/50 transition-all duration-200">
+        <Card className="glassmorphism-card border-primary-accent/30 hover:border-secondary-accent/50 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-neon-green">Total Drivers</CardTitle>
+            <CardTitle className="text-sm font-medium text-secondary-accent">Total Drivers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -86,9 +86,9 @@ export function StatsWidgets() {
         </Card>
       </Link>
       <Link href="/vehicles" className="block">
-        <Card className="glassmorphism-card border-neon-blue/30 hover:border-neon-green/50 transition-all duration-200">
+        <Card className="glassmorphism-card border-primary-accent/30 hover:border-secondary-accent/50 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-neon-green">Total Vehicles</CardTitle>
+            <CardTitle className="text-sm font-medium text-secondary-accent">Total Vehicles</CardTitle>
             <Car className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -98,9 +98,9 @@ export function StatsWidgets() {
         </Card>
       </Link>
       {/* Placeholder for Current Trips and Notifications stats, will be updated with actual data */}
-      <Card className="glassmorphism-card border-neon-blue/30">
+      <Card className="glassmorphism-card border-primary-accent/30">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-neon-green">Current Trips</CardTitle>
+          <CardTitle className="text-sm font-medium text-secondary-accent">Current Trips</CardTitle>
           <Car className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -108,9 +108,9 @@ export function StatsWidgets() {
           <p className="text-xs text-gray-400">Loading...</p>
         </CardContent>
       </Card>
-      <Card className="glassmorphism-card border-neon-blue/30">
+      <Card className="glassmorphism-card border-primary-accent/30">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-neon-green">New Notifications</CardTitle>
+          <CardTitle className="text-sm font-medium text-secondary-accent">New Notifications</CardTitle>
           <Bell className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

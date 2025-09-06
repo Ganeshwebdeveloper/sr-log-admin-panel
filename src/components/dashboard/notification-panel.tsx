@@ -51,9 +51,9 @@ export function NotificationPanel() {
   }, [fetchNotifications, supabase]);
 
   return (
-    <Card className="glassmorphism-card border-neon-blue/30">
+    <Card className="glassmorphism-card border-primary-accent/30">
       <CardHeader>
-        <CardTitle className="text-neon-blue flex items-center gap-2">
+        <CardTitle className="text-primary-accent flex items-center gap-2">
           <Bell className="h-5 w-5" /> Notification Panel
         </CardTitle>
       </CardHeader>
@@ -63,12 +63,12 @@ export function NotificationPanel() {
         ) : notifications.length === 0 ? (
           <div className="text-center text-gray-400">No new notifications.</div>
         ) : (
-          <ScrollArea className="h-[300px] w-full rounded-md border border-neon-blue/20 p-2">
+          <ScrollArea className="h-[300px] w-full rounded-md border border-primary-accent/20 p-2">
             <div className="space-y-3">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className="p-3 rounded-md bg-gray-800/50 border border-neon-blue/10 text-sm"
+                  className="p-3 rounded-md bg-gray-800/50 border border-primary-accent/10 text-sm"
                 >
                   <p className="font-medium text-white">{notification.message}</p>
                   <p className="text-xs text-gray-400 mt-1">

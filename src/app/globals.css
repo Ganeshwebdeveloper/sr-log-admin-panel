@@ -95,24 +95,12 @@
   }
 }
 
-/* Glassmorphism effect for cards */
+/* Subtle Glassmorphism effect for cards */
 .glassmorphism-card {
-  background-color: rgba(255, 255, 255, 0.05); /* Slightly visible background */
-  backdrop-filter: blur(10px); /* Blur effect */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  background-color: rgba(255, 255, 255, 0.03); /* Very subtle background */
+  backdrop-filter: blur(8px); /* Blur effect */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow */
 }
 
-/* Neon text shadow for accents */
-.text-neon-blue {
-  text-shadow: 0 0 5px #00F0FF, 0 0 10px #00F0FF, 0 0 15px #00F0FF;
-}
-.text-neon-green {
-  text-shadow: 0 0 5px #39FF14, 0 0 10px #39FF14, 0 0 15px #39FF14;
-}
-.text-neon-purple {
-  text-shadow: 0 0 5px #BC13FE, 0 0 10px #BC13FE, 0 0 15px #BC13FE;
-}
-.text-neon-yellow {
-  text-shadow: 0 0 5px #FFF000, 0 0 10px #FFF000, 0 0 15px #FFF000;
-}
+/* Removed neon text shadows as per new theme */

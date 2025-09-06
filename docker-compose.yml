@@ -31,6 +31,7 @@ services:
       # EXTERNAL_API_URL_SERVICE1: "https://api.your-primary-service.com"
       # EXTERNAL_API_URL_SERVICE2: "https://api.your-payment-gateway.com"
       # WEATHER_API_URL: "https://api.your-weather-provider.com/v1"
+      # UPLOAD_CHAT_FILE_EDGE_FUNCTION_URL: "https://<YOUR_SUPABASE_PROJECT_ID>.supabase.co/functions/v1/upload-chat-file"
 
     # Restart policy for the container
     restart: unless-stopped

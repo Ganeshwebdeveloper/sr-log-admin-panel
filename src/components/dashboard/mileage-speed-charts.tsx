@@ -71,9 +71,9 @@ export function MileageSpeedCharts() {
   }, [fetchTripData, supabase]);
 
   return (
-    <Card className="glassmorphism-card border-neon-blue/30 lg:col-span-2">
+    <Card className="glassmorphism-card border-primary-accent/30 lg:col-span-2">
       <CardHeader>
-        <CardTitle className="text-neon-blue">Mileage & Speeding Graphs (Current Trips)</CardTitle>
+        <CardTitle className="text-primary-accent">Mileage & Speeding Graphs (Current Trips)</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -91,17 +91,17 @@ export function MileageSpeedCharts() {
                 bottom: 5,
               }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 240, 255, 0.2)" />
-              <XAxis dataKey="name" stroke="#00F0FF" />
-              <YAxis yAxisId="left" stroke="#39FF14" label={{ value: 'Distance (km)', angle: -90, position: 'insideLeft', fill: '#39FF14' }} />
-              <YAxis yAxisId="right" orientation="right" stroke="#FFF000" label={{ value: 'Avg Speed (km/h)', angle: 90, position: 'insideRight', fill: '#FFF000' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(79, 70, 229, 0.2)" /> {/* Using primary-accent with transparency */}
+              <XAxis dataKey="name" stroke="#4F46E5" /> {/* primary-accent */}
+              <YAxis yAxisId="left" stroke="#10B981" label={{ value: 'Distance (km)', angle: -90, position: 'insideLeft', fill: '#10B981' }} /> {/* secondary-accent */}
+              <YAxis yAxisId="right" orientation="right" stroke="#F59E0B" label={{ value: 'Avg Speed (km/h)', angle: 90, position: 'insideRight', fill: '#F59E0B' }} /> {/* warning-accent */}
               <Tooltip
-                contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.8)', border: '1px solid #00F0FF', borderRadius: '4px' }}
+                contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.8)', border: '1px solid #4F46E5', borderRadius: '4px' }}
                 itemStyle={{ color: '#fff' }}
               />
               <Legend />
-              <Line yAxisId="left" type="monotone" dataKey="distance" stroke="#39FF14" activeDot={{ r: 8 }} name="Distance (km)" />
-              <Line yAxisId="right" type="monotone" dataKey="avg_speed" stroke="#FFF000" name="Avg Speed (km/h)" />
+              <Line yAxisId="left" type="monotone" dataKey="distance" stroke="#10B981" activeDot={{ r: 8 }} name="Distance (km)" /> {/* secondary-accent */}
+              <Line yAxisId="right" type="monotone" dataKey="avg_speed" stroke="#F59E0B" name="Avg Speed (km/h)" /> {/* warning-accent */}
             </LineChart>
           </ResponsiveContainer>
         )}

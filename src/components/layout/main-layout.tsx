@@ -3,14 +3,15 @@
 import React from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
-import { useAuth } from "@/components/auth/auth-provider"; // Ensure this is a client component
+import { useAuth } from "@/components/auth/auth-provider";
+import { FixedChatButton } from "@/components/layout/fixed-chat-button"; // Import FixedChatButton
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const { loading, session } = useAuth();
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-950 text-neon-blue text-2xl">
+      <div className="flex items-center justify-center min-h-screen bg-gray-950 text-primary-accent text-2xl">
         Loading application...
       </div>
     );
@@ -33,6 +34,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      <FixedChatButton /> {/* Render the fixed chat button */}
     </div>
   );
 }

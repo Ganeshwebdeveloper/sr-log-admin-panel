@@ -18,7 +18,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside className={cn("h-full w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col p-4", className)}>
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-neon-blue">SR Logistics</h2>
+        <h2 className="text-2xl font-bold text-primary-accent">SR Logistics</h2>
       </div>
       <nav className="flex-1 space-y-2">
         {navItems.map((item) => (

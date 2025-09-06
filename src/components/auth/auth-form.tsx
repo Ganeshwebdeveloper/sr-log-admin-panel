@@ -85,9 +85,9 @@ export function AuthForm() {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-md border border-neon-blue/30 shadow-neon-blue/50 shadow-lg">
+    <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-md border border-primary-accent/30 shadow-lg">
       <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-neon-blue">SR Logistics Admin</CardTitle>
+        <CardTitle className="text-3xl font-bold text-primary-accent">SR Logistics Admin</CardTitle>
         <CardDescription className="text-gray-300">
           {mode === 'login' && 'Login to your account'}
           {mode === 'signup' && 'Create a new account'}
@@ -104,7 +104,7 @@ export function AuthForm() {
         } className="grid gap-4">
           {(mode === 'login' || mode === 'signup' || mode === 'magiclink' || mode === 'otp') && (
             <div className="grid gap-2">
-              <Label htmlFor="email" className="text-neon-green">Email</Label>
+              <Label htmlFor="email" className="text-secondary-accent">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -112,26 +112,26 @@ export function AuthForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-gray-700/50 border-neon-blue/20 text-white focus:border-neon-blue focus:ring-neon-blue"
+                className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
               />
             </div>
           )}
           {(mode === 'login' || mode === 'signup') && (
             <div className="grid gap-2">
-              <Label htmlFor="password" className="text-neon-green">Password</Label>
+              <Label htmlFor="password" className="text-secondary-accent">Password</Label>
               <Input
                 id="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-gray-700/50 border-neon-blue/20 text-white focus:border-neon-blue focus:ring-neon-blue"
+                className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
               />
             </div>
           )}
           {mode === 'otp' && (
             <div className="grid gap-2">
-              <Label htmlFor="otp" className="text-neon-green">OTP</Label>
+              <Label htmlFor="otp" className="text-secondary-accent">OTP</Label>
               <Input
                 id="otp"
                 type="text"
@@ -139,11 +139,11 @@ export function AuthForm() {
                 required
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="bg-gray-700/50 border-neon-blue/20 text-white focus:border-neon-blue focus:ring-neon-blue"
+                className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
               />
             </div>
           )}
-          <Button type="submit" className="w-full bg-neon-blue hover:bg-neon-blue/80 text-black font-bold" disabled={loading}>
+          <Button type="submit" className="w-full bg-primary-accent hover:bg-primary-accent/80 text-white font-bold" disabled={loading}>
             {loading ? 'Loading...' :
              mode === 'login' ? 'Login' :
              mode === 'signup' ? 'Sign Up' :
@@ -155,15 +155,15 @@ export function AuthForm() {
           {mode === 'login' && (
             <>
               Don't have an account?{' '}
-              <Button variant="link" onClick={() => setMode('signup')} className="text-neon-green hover:text-neon-green/80 p-0 h-auto">
+              <Button variant="link" onClick={() => setMode('signup')} className="text-secondary-accent hover:text-secondary-accent/80 p-0 h-auto">
                 Sign Up
               </Button>
               <br />
-              <Button variant="link" onClick={() => setMode('magiclink')} className="text-neon-purple hover:text-neon-purple/80 p-0 h-auto">
+              <Button variant="link" onClick={() => setMode('magiclink')} className="text-primary-accent hover:text-primary-accent/80 p-0 h-auto">
                 Login with Magic Link
               </Button>
               <br />
-              <Button variant="link" onClick={() => setMode('otp')} className="text-neon-yellow hover:text-neon-yellow/80 p-0 h-auto">
+              <Button variant="link" onClick={() => setMode('otp')} className="text-warning-accent hover:text-warning-accent/80 p-0 h-auto">
                 Login with OTP
               </Button>
             </>
@@ -171,7 +171,7 @@ export function AuthForm() {
           {mode === 'signup' && (
             <>
               Already have an account?{' '}
-              <Button variant="link" onClick={() => setMode('login')} className="text-neon-green hover:text-neon-green/80 p-0 h-auto">
+              <Button variant="link" onClick={() => setMode('login')} className="text-secondary-accent hover:text-secondary-accent/80 p-0 h-auto">
                 Login
               </Button>
             </>
@@ -179,7 +179,7 @@ export function AuthForm() {
           {(mode === 'otp' || mode === 'magiclink') && (
             <>
               Go back to{' '}
-              <Button variant="link" onClick={() => setMode('login')} className="text-neon-green hover:text-neon-green/80 p-0 h-auto">
+              <Button variant="link" onClick={() => setMode('login')} className="text-secondary-accent hover:text-secondary-accent/80 p-0 h-auto">
                 Login
               </Button>
             </>
