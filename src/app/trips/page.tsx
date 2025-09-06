@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { PlusCircle, Edit, Trash2, ArrowUp, ArrowDown, Filter } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, ArrowUp, ArrowDown, Filter, FileText, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -20,6 +20,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format } from 'date-fns';
+
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 type Trip = Database['public']['Tables']['trips']['Row'] & {
   drivers: { name: string } | null;
@@ -163,23 +167,96 @@ export default function TripsPage() {
     return null;
   };
 
+  const exportToPdf = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("All Trips List", 14, 20);
+
+    doc.autoTable({
+      startY: 30,
+      head: [['From', 'To', 'Driver', 'Vehicle', 'Status', 'Start Time', 'End Time', 'Current Location', 'Distance (km)', 'Avg Speed (km/h)', 'Trip Cost (₹)']],
+      body: trips.map(trip => [
+        trip.origin,
+        trip.destination,
+        trip.drivers?.name || 'N/A',
+        trip.vehicles?.reg_no || 'N/A',
+        trip.status,
+        trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
+        trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : 'N/A',
+        trip.current_location || 'N/A',
+        trip.distance?.toFixed(2) || '0.00',
+        trip.avg_speed?.toFixed(2) || '0.00',
+        `₹${trip.total_cost?.toFixed(2) || '0.00'}`,
+      ]),
+      theme: 'striped',
+      styles: { fillColor: [30, 41, 59] },
+      headStyles: { fillColor: [79, 70, 229] },
+      alternateRowStyles: { fillColor: [45, 55, 72] },
+    });
+
+    doc.save(`trips_list.pdf`);
+    toast.success('Trips list exported to PDF!');
+  };
+
+  const exportToExcel = () => {
+    const data = trips.map(trip => ({
+      From: trip.origin,
+      To: trip.destination,
+      Driver: trip.drivers?.name || 'N/A',
+      Vehicle: trip.vehicles?.reg_no || 'N/A',
+      Status: trip.status,
+      'Start Time': trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
+      'End Time': trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : 'N/A',
+      'Current Location': trip.current_location || 'N/A',
+      'Distance (km)': trip.distance?.toFixed(2) || '0.00',
+      'Avg Speed (km/h)': trip.avg_speed?.toFixed(2) || '0.00',
+      'Trip Cost (₹)': trip.total_cost?.toFixed(2) || '0.00',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Trips List");
+    XLSX.writeFile(wb, `trips_list.xlsx`);
+    toast.success('Trips list exported to Excel!');
+  };
+
   return (
     <div className="flex flex-col gap-6 p-4 lg:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-primary-accent">Trips Management</h1>
-        <Dialog open={isAssignTripDialogOpen} onOpenChange={setIsAssignTripDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold">
-              <PlusCircle className="mr-2 h-4 w-4" /> Assign Trip
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] bg-card border-border text-foreground max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-primary-accent">Assign New Trip</DialogTitle>
-            </DialogHeader>
-            <AssignTripForm onSuccess={() => setIsAssignTripDialogOpen(false)} onClose={() => setIsAssignTripDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Dialog open={isAssignTripDialogOpen} onOpenChange={setIsAssignTripDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold">
+                <PlusCircle className="mr-2 h-4 w-4" /> Assign Trip
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] bg-card border-border text-foreground max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-primary-accent">Assign New Trip</DialogTitle>
+              </DialogHeader>
+              <AssignTripForm onSuccess={() => setIsAssignTripDialogOpen(false)} onClose={() => setIsAssignTripDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToPdf}
+            disabled={trips.length === 0}
+            className="bg-transparent border-secondary-accent/30 text-secondary-accent hover:bg-secondary-accent/10"
+          >
+            <FileText className="h-4 w-4 mr-2" /> PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToExcel}
+            disabled={trips.length === 0}
+            className="bg-transparent border-warning-accent/30 text-warning-accent hover:bg-warning-accent/10"
+          >
+            <FileSpreadsheet className="h-4 w-4 mr-2" /> Excel
+          </Button>
+        </div>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[600px] bg-card border-border text-foreground max-h-[90vh] overflow-y-auto">

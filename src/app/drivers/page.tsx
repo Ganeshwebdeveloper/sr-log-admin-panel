@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { PlusCircle, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Eye, EyeOff, ArrowUp, ArrowDown, FileText, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,7 +13,14 @@ import { toast } from 'sonner';
 import { Database } from '@/types/supabase';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+
 type Driver = Database['public']['Tables']['drivers']['Row'];
+
+type SortColumn = keyof Driver;
+type SortDirection = 'asc' | 'desc';
 
 export default function DriversPage() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -22,6 +29,11 @@ export default function DriversPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | undefined>(undefined);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
+
+  // Sorting states
+  const [sortColumn, setSortColumn] = useState<SortColumn>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
   const supabase = supabaseBrowser;
 
   const fetchDrivers = useCallback(async () => {
@@ -30,7 +42,7 @@ export default function DriversPage() {
       const { data, error } = await supabase
         .from('drivers')
         .select('*')
-        .order('name', { ascending: true });
+        .order(sortColumn, { ascending: sortDirection === 'asc' });
 
       if (error) throw error;
       setDrivers(data);
@@ -40,7 +52,7 @@ export default function DriversPage() {
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, [supabase, sortColumn, sortDirection]);
 
   useEffect(() => {
     fetchDrivers();
@@ -82,23 +94,100 @@ export default function DriversPage() {
     setIsEditDialogOpen(true);
   };
 
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: SortColumn) => {
+    if (sortColumn === column) {
+      return sortDirection === 'asc' ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />;
+    }
+    return null;
+  };
+
+  const exportToPdf = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("All Drivers List", 14, 20);
+
+    doc.autoTable({
+      startY: 30,
+      head: [['DRV ID', 'Name', 'Email', 'Phone', 'Status']],
+      body: drivers.map(driver => [
+        driver.drv_id,
+        driver.name,
+        driver.email || 'N/A',
+        driver.phone || 'N/A',
+        driver.status,
+      ]),
+      theme: 'striped',
+      styles: { fillColor: [30, 41, 59] },
+      headStyles: { fillColor: [79, 70, 229] },
+      alternateRowStyles: { fillColor: [45, 55, 72] },
+    });
+
+    doc.save(`drivers_list.pdf`);
+    toast.success('Drivers list exported to PDF!');
+  };
+
+  const exportToExcel = () => {
+    const data = drivers.map(driver => ({
+      'DRV ID': driver.drv_id,
+      Name: driver.name,
+      Email: driver.email || 'N/A',
+      Phone: driver.phone || 'N/A',
+      Status: driver.status,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Drivers List");
+    XLSX.writeFile(wb, `drivers_list.xlsx`);
+    toast.success('Drivers list exported to Excel!');
+  };
+
   return (
     <div className="flex flex-col gap-6 p-4 lg:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-primary-accent">Drivers Management</h1>
-        <Dialog open={isAddDriverDialogOpen} onOpenChange={setIsAddDriverDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Driver
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
-            <DialogHeader>
-              <DialogTitle className="text-primary-accent">Add New Driver</DialogTitle>
-            </DialogHeader>
-            <AddDriverForm onSuccess={() => setIsAddDriverDialogOpen(false)} onClose={() => setIsAddDriverDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Dialog open={isAddDriverDialogOpen} onOpenChange={setIsAddDriverDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold">
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Driver
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
+              <DialogHeader>
+                <DialogTitle className="text-primary-accent">Add New Driver</DialogTitle>
+              </DialogHeader>
+              <AddDriverForm onSuccess={() => setIsAddDriverDialogOpen(false)} onClose={() => setIsAddDriverDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToPdf}
+            disabled={drivers.length === 0}
+            className="bg-transparent border-secondary-accent/30 text-secondary-accent hover:bg-secondary-accent/10"
+          >
+            <FileText className="h-4 w-4 mr-2" /> PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToExcel}
+            disabled={drivers.length === 0}
+            className="bg-transparent border-warning-accent/30 text-warning-accent hover:bg-warning-accent/10"
+          >
+            <FileSpreadsheet className="h-4 w-4 mr-2" /> Excel
+          </Button>
+        </div>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
@@ -131,11 +220,21 @@ export default function DriversPage() {
                 <TableHeader>
                   <TableRow className="bg-gray-800/50 text-secondary-accent">
                     <TableHead>Photo</TableHead>
-                    <TableHead>DRV ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead onClick={() => handleSort('drv_id')} className="cursor-pointer hover:text-primary-accent">
+                      DRV ID {getSortIcon('drv_id')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('name')} className="cursor-pointer hover:text-primary-accent">
+                      Name {getSortIcon('name')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('email')} className="cursor-pointer hover:text-primary-accent">
+                      Email {getSortIcon('email')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('phone')} className="cursor-pointer hover:text-primary-accent">
+                      Phone {getSortIcon('phone')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('status')} className="cursor-pointer hover:text-primary-accent">
+                      Status {getSortIcon('status')}
+                    </TableHead>
                     <TableHead>Password</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>

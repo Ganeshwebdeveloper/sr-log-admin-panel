@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, ArrowUp, ArrowDown, FileText, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,7 +13,14 @@ import { toast } from 'sonner';
 import { Database } from '@/types/supabase';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+
 type Vehicle = Database['public']['Tables']['vehicles']['Row'];
+
+type SortColumn = keyof Vehicle;
+type SortDirection = 'asc' | 'desc';
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -21,6 +28,11 @@ export default function VehiclesPage() {
   const [isAddVehicleDialogOpen, setIsAddVehicleDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(undefined);
+
+  // Sorting states
+  const [sortColumn, setSortColumn] = useState<SortColumn>('reg_no');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
   const supabase = supabaseBrowser;
 
   const fetchVehicles = useCallback(async () => {
@@ -29,7 +41,7 @@ export default function VehiclesPage() {
       const { data, error } = await supabase
         .from('vehicles')
         .select('*')
-        .order('reg_no', { ascending: true });
+        .order(sortColumn, { ascending: sortDirection === 'asc' });
 
       if (error) throw error;
       setVehicles(data);
@@ -39,7 +51,7 @@ export default function VehiclesPage() {
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, [supabase, sortColumn, sortDirection]);
 
   useEffect(() => {
     fetchVehicles();
@@ -81,23 +93,100 @@ export default function VehiclesPage() {
     setIsEditDialogOpen(true);
   };
 
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: SortColumn) => {
+    if (sortColumn === column) {
+      return sortDirection === 'asc' ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />;
+    }
+    return null;
+  };
+
+  const exportToPdf = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("All Vehicles List", 14, 20);
+
+    doc.autoTable({
+      startY: 30,
+      head: [['Registration No.', 'Company', 'Model', 'Year', 'Status']],
+      body: vehicles.map(vehicle => [
+        vehicle.reg_no,
+        vehicle.company || 'N/A',
+        vehicle.model || 'N/A',
+        vehicle.year || 'N/A',
+        vehicle.status,
+      ]),
+      theme: 'striped',
+      styles: { fillColor: [30, 41, 59] },
+      headStyles: { fillColor: [79, 70, 229] },
+      alternateRowStyles: { fillColor: [45, 55, 72] },
+    });
+
+    doc.save(`vehicles_list.pdf`);
+    toast.success('Vehicles list exported to PDF!');
+  };
+
+  const exportToExcel = () => {
+    const data = vehicles.map(vehicle => ({
+      'Registration No.': vehicle.reg_no,
+      Company: vehicle.company || 'N/A',
+      Model: vehicle.model || 'N/A',
+      Year: vehicle.year || 'N/A',
+      Status: vehicle.status,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Vehicles List");
+    XLSX.writeFile(wb, `vehicles_list.xlsx`);
+    toast.success('Vehicles list exported to Excel!');
+  };
+
   return (
     <div className="flex flex-col gap-6 p-4 lg:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-primary-accent">Vehicles Management</h1>
-        <Dialog open={isAddVehicleDialogOpen} onOpenChange={setIsAddVehicleDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Vehicle
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
-            <DialogHeader>
-              <DialogTitle className="text-primary-accent">Add New Vehicle</DialogTitle>
-            </DialogHeader>
-            <AddVehicleForm onSuccess={() => setIsAddVehicleDialogOpen(false)} onClose={() => setIsAddVehicleDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Dialog open={isAddVehicleDialogOpen} onOpenChange={setIsAddVehicleDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold">
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Vehicle
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
+              <DialogHeader>
+                <DialogTitle className="text-primary-accent">Add New Vehicle</DialogTitle>
+              </DialogHeader>
+              <AddVehicleForm onSuccess={() => setIsAddVehicleDialogOpen(false)} onClose={() => setIsAddVehicleDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToPdf}
+            disabled={vehicles.length === 0}
+            className="bg-transparent border-secondary-accent/30 text-secondary-accent hover:bg-secondary-accent/10"
+          >
+            <FileText className="h-4 w-4 mr-2" /> PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToExcel}
+            disabled={vehicles.length === 0}
+            className="bg-transparent border-warning-accent/30 text-warning-accent hover:bg-warning-accent/10"
+          >
+            <FileSpreadsheet className="h-4 w-4 mr-2" /> Excel
+          </Button>
+        </div>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
@@ -129,10 +218,21 @@ export default function VehiclesPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-800/50 text-secondary-accent">
-                    <TableHead>Registration No.</TableHead>
-                    <TableHead>Company/Model</TableHead>
-                    <TableHead>Year</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead onClick={() => handleSort('reg_no')} className="cursor-pointer hover:text-primary-accent">
+                      Registration No. {getSortIcon('reg_no')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('company')} className="cursor-pointer hover:text-primary-accent">
+                      Company {getSortIcon('company')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('model')} className="cursor-pointer hover:text-primary-accent">
+                      Model {getSortIcon('model')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('year')} className="cursor-pointer hover:text-primary-accent">
+                      Year {getSortIcon('year')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('status')} className="cursor-pointer hover:text-primary-accent">
+                      Status {getSortIcon('status')}
+                    </TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>

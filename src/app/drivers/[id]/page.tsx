@@ -15,11 +15,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-// Import for PDF export
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
-// Import for Excel export
+import 'jspdf-autotable'; // This import extends jsPDF with autoTable
 import * as XLSX from 'xlsx';
 
 type Driver = Database['public']['Tables']['drivers']['Row'];
@@ -102,41 +99,38 @@ export default function SingleDriverPage() {
     }
   }, [driver, fetchDriverTrips]);
 
-  const handleExportPdf = () => {
+  const exportToPdf = () => {
     const doc = new jsPDF();
-    const tableColumn = ["From", "To", "Vehicle", "Distance (km)", "Avg Speed (km/h)", "Driver Salary (₹)", "Status", "Start Time"];
-    const tableRows = trips.map(trip => [
-      trip.origin,
-      trip.destination,
-      trip.vehicles?.reg_no || 'N/A',
-      trip.distance?.toFixed(2) || '0.00',
-      trip.avg_speed?.toFixed(2) || '0.00',
-      `₹${trip.driver_salary?.toFixed(2) || '0.00'}`,
-      trip.status,
-      trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
-    ]);
+    doc.setFontSize(16);
+    doc.text(`Trip History for ${driver?.name} (${format(selectedMonth, "MMM yyyy")})`, 14, 20);
 
-    doc.setFontSize(18);
-    doc.text(`Trip History for Driver: ${driver?.name} (${driver?.drv_id})`, 14, 20);
-    doc.setFontSize(12);
-    doc.text(`Month: ${format(selectedMonth, "MMM yyyy")}`, 14, 28);
-    doc.text(`Total Monthly Salary: ₹${totalMonthlySalary.toFixed(2)}`, 14, 36);
-
-    (doc as any).autoTable({
-      startY: 45,
-      head: [tableColumn],
-      body: tableRows,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [79, 70, 229] }, // primary-accent
-      alternateRowStyles: { fillColor: [30, 41, 59] }, // dark gray
-      bodyStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] }, // even darker gray, white text
+    doc.autoTable({
+      startY: 30,
+      head: [['From', 'To', 'Vehicle', 'Distance (km)', 'Avg Speed (km/h)', 'Driver Salary (₹)', 'Status', 'Start Time']],
+      body: trips.map(trip => [
+        trip.origin,
+        trip.destination,
+        trip.vehicles?.reg_no || 'N/A',
+        trip.distance?.toFixed(2) || '0.00',
+        trip.avg_speed?.toFixed(2) || '0.00',
+        `₹${trip.driver_salary?.toFixed(2) || '0.00'}`,
+        trip.status,
+        trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
+      ]),
+      theme: 'striped',
+      styles: { fillColor: [30, 41, 59] }, // Dark background for table
+      headStyles: { fillColor: [79, 70, 229] }, // Primary accent for header
+      alternateRowStyles: { fillColor: [45, 55, 72] }, // Slightly lighter dark for alternate rows
     });
 
-    doc.save(`Driver_${driver?.drv_id}_Trips_${format(selectedMonth, "MMM_yyyy")}.pdf`);
-    toast.success('Trip history exported as PDF!');
+    doc.setFontSize(12);
+    doc.text(`Total Salary for ${format(selectedMonth, "MMM yyyy")}: ₹${totalMonthlySalary.toFixed(2)}`, 14, (doc as any).autoTable.previous.finalY + 10);
+
+    doc.save(`driver_${driver?.drv_id}_trips_${format(selectedMonth, "MMM_yyyy")}.pdf`);
+    toast.success('Trip history exported to PDF!');
   };
 
-  const handleExportExcel = () => {
+  const exportToExcel = () => {
     const data = trips.map(trip => ({
       From: trip.origin,
       To: trip.destination,
@@ -149,10 +143,12 @@ export default function SingleDriverPage() {
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.sheet_add_json(ws, [{ 'Total Monthly Salary (₹)': totalMonthlySalary.toFixed(2) }], { origin: -1 });
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Driver Trips");
-    XLSX.writeFile(wb, `Driver_${driver?.drv_id}_Trips_${format(selectedMonth, "MMM_yyyy")}.xlsx`);
-    toast.success('Trip history exported as Excel!');
+    XLSX.utils.book_append_sheet(wb, ws, "Trip History");
+    XLSX.writeFile(wb, `driver_${driver?.drv_id}_trips_${format(selectedMonth, "MMM_yyyy")}.xlsx`);
+    toast.success('Trip history exported to Excel!');
   };
 
   if (loading) {
@@ -249,8 +245,8 @@ export default function SingleDriverPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleExportPdf}
-              disabled={loading || trips.length === 0}
+              onClick={exportToPdf}
+              disabled={trips.length === 0}
               className="bg-transparent border-secondary-accent/30 text-secondary-accent hover:bg-secondary-accent/10"
             >
               <FileText className="h-4 w-4 mr-2" /> PDF
@@ -258,9 +254,9 @@ export default function SingleDriverPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleExportExcel}
-              disabled={loading || trips.length === 0}
-              className="bg-transparent border-secondary-accent/30 text-secondary-accent hover:bg-secondary-accent/10"
+              onClick={exportToExcel}
+              disabled={trips.length === 0}
+              className="bg-transparent border-warning-accent/30 text-warning-accent hover:bg-warning-accent/10"
             >
               <FileSpreadsheet className="h-4 w-4 mr-2" /> Excel
             </Button>
