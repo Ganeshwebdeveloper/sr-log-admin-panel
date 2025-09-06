@@ -19,43 +19,43 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
-type Driver = Database['public']['Tables']['drivers']['Row'];
+type Vehicle = Database['public']['Tables']['vehicles']['Row'];
 type Trip = Database['public']['Tables']['trips']['Row'] & {
-  vehicles: { reg_no: string } | null;
+  drivers: { name: string } | null;
 };
 
-export default function SingleDriverPage() {
-  const { id } = useParams<{ id: string }>();
+export default function SingleVehiclePage() {
+  const { id } = useParams<{ id: string }>(); // id here is reg_no
   const router = useRouter();
   const supabase = supabaseBrowser;
 
-  const [driver, setDriver] = useState<Driver | null>(null);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
-  const [totalMonthlySalary, setTotalMonthlySalary] = useState<number>(0);
+  const [totalMonthlyMaintenance, setTotalMonthlyMaintenance] = useState<number>(0);
 
-  const fetchDriverDetails = useCallback(async () => {
+  const fetchVehicleDetails = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: driverData, error: driverError } = await supabase
-        .from('drivers')
+      const { data: vehicleData, error: vehicleError } = await supabase
+        .from('vehicles')
         .select('*')
-        .eq('drv_id', id)
+        .eq('reg_no', id)
         .single();
 
-      if (driverError) throw driverError;
-      setDriver(driverData);
+      if (vehicleError) throw vehicleError;
+      setVehicle(vehicleData);
     } catch (error: any) {
-      toast.error(`Failed to fetch driver details: ${error.message}`);
-      console.error('Error fetching driver details:', error);
-      setDriver(null);
+      toast.error(`Failed to fetch vehicle details: ${error.message}`);
+      console.error('Error fetching vehicle details:', error);
+      setVehicle(null);
     } finally {
       setLoading(false);
     }
   }, [id, supabase]);
 
-  const fetchDriverTrips = useCallback(async () => {
+  const fetchVehicleTrips = useCallback(async () => {
     setLoading(true);
     try {
       const start = format(startOfMonth(selectedMonth), 'yyyy-MM-dd HH:mm:ss');
@@ -65,9 +65,9 @@ export default function SingleDriverPage() {
         .from('trips')
         .select(`
           *,
-          vehicles(reg_no)
+          drivers(name)
         `)
-        .eq('drv_id', id)
+        .eq('vehicle_reg_no', id)
         .gte('start_time', start)
         .lte('start_time', end)
         .order('start_time', { ascending: false })
@@ -76,57 +76,57 @@ export default function SingleDriverPage() {
       if (tripsError) throw tripsError;
       setTrips(tripsData as Trip[]);
 
-      const totalSalary = tripsData.reduce((sum, trip) => sum + (trip.driver_salary || 0), 0);
-      setTotalMonthlySalary(totalSalary);
+      const totalMaintenance = tripsData.reduce((sum, trip) => sum + (trip.maintenance_cost || 0), 0);
+      setTotalMonthlyMaintenance(totalMaintenance);
 
     } catch (error: any) {
-      toast.error(`Failed to fetch driver trips: ${error.message}`);
-      console.error('Error fetching driver trips:', error);
+      toast.error(`Failed to fetch vehicle trips: ${error.message}`);
+      console.error('Error fetching vehicle trips:', error);
       setTrips([]);
-      setTotalMonthlySalary(0);
+      setTotalMonthlyMaintenance(0);
     } finally {
       setLoading(false);
     }
   }, [id, selectedMonth, supabase]);
 
   useEffect(() => {
-    fetchDriverDetails();
-  }, [fetchDriverDetails]);
+    fetchVehicleDetails();
+  }, [fetchVehicleDetails]);
 
   useEffect(() => {
-    if (driver) {
-      fetchDriverTrips();
+    if (vehicle) {
+      fetchVehicleTrips();
     }
-  }, [driver, fetchDriverTrips]);
+  }, [vehicle, fetchVehicleTrips]);
 
   const exportToPdf = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text(`Trip History for ${driver?.name} (${format(selectedMonth, "MMM yyyy")})`, 14, 20);
+    doc.text(`Trip History for Vehicle ${vehicle?.reg_no} (${format(selectedMonth, "MMM yyyy")})`, 14, 20);
 
     (doc as any).autoTable({
       startY: 30,
-      head: [['From', 'To', 'Vehicle', 'Distance (km)', 'Avg Speed (km/h)', 'Driver Salary (₹)', 'Status', 'Start Time']],
+      head: [['From', 'To', 'Driver', 'Distance (km)', 'Avg Speed (km/h)', 'Maintenance Cost (₹)', 'Status', 'Start Time']],
       body: trips.map(trip => [
         trip.origin,
         trip.destination,
-        trip.vehicles?.reg_no || 'N/A',
+        trip.drivers?.name || 'N/A',
         trip.distance?.toFixed(2) || '0.00',
         trip.avg_speed?.toFixed(2) || '0.00',
-        `₹${trip.driver_salary?.toFixed(2) || '0.00'}`,
+        `₹${trip.maintenance_cost?.toFixed(2) || '0.00'}`,
         trip.status,
         trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
       ]),
       theme: 'striped',
-      styles: { fillColor: [30, 41, 59] }, // Dark background for table
-      headStyles: { fillColor: [79, 70, 229] }, // Primary accent for header
-      alternateRowStyles: { fillColor: [45, 55, 72] }, // Slightly lighter dark for alternate rows
+      styles: { fillColor: [30, 41, 59] },
+      headStyles: { fillColor: [79, 70, 229] },
+      alternateRowStyles: { fillColor: [45, 55, 72] },
     });
 
     doc.setFontSize(12);
-    doc.text(`Total Salary for ${format(selectedMonth, "MMM yyyy")}: ₹${totalMonthlySalary.toFixed(2)}`, 14, (doc as any).autoTable.previous.finalY + 10);
+    doc.text(`Total Maintenance Cost for ${format(selectedMonth, "MMM yyyy")}: ₹${totalMonthlyMaintenance.toFixed(2)}`, 14, (doc as any).autoTable.previous.finalY + 10);
 
-    doc.save(`driver_${driver?.drv_id}_trips_${format(selectedMonth, "MMM_yyyy")}.pdf`);
+    doc.save(`vehicle_${vehicle?.reg_no}_trips_${format(selectedMonth, "MMM_yyyy")}.pdf`);
     toast.success('Trip history exported to PDF!');
   };
 
@@ -134,38 +134,38 @@ export default function SingleDriverPage() {
     const data = trips.map(trip => ({
       From: trip.origin,
       To: trip.destination,
-      Vehicle: trip.vehicles?.reg_no || 'N/A',
+      Driver: trip.drivers?.name || 'N/A',
       'Distance (km)': trip.distance?.toFixed(2) || '0.00',
       'Avg Speed (km/h)': trip.avg_speed?.toFixed(2) || '0.00',
-      'Driver Salary (₹)': trip.driver_salary?.toFixed(2) || '0.00',
+      'Maintenance Cost (₹)': trip.maintenance_cost?.toFixed(2) || '0.00',
       Status: trip.status,
       'Start Time': trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.sheet_add_json(ws, [{ 'Total Monthly Salary (₹)': totalMonthlySalary.toFixed(2) }], { origin: -1 });
+    XLSX.utils.sheet_add_json(ws, [{ 'Total Monthly Maintenance Cost (₹)': totalMonthlyMaintenance.toFixed(2) }], { origin: -1 });
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Trip History");
-    XLSX.writeFile(wb, `driver_${driver?.drv_id}_trips_${format(selectedMonth, "MMM_yyyy")}.xlsx`);
+    XLSX.writeFile(wb, `vehicle_${vehicle?.reg_no}_trips_${format(selectedMonth, "MMM_yyyy")}.xlsx`);
     toast.success('Trip history exported to Excel!');
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-950 text-primary-accent text-2xl">
-        Loading driver details...
+        Loading vehicle details...
       </div>
     );
   }
 
-  if (!driver) {
+  if (!vehicle) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center text-gray-400">
-        <h2 className="text-2xl font-bold text-destructive">Driver Not Found</h2>
-        <p className="mt-2">The driver with ID "{id}" could not be found.</p>
-        <Button onClick={() => router.push('/drivers')} className="mt-4 bg-primary-accent hover:bg-primary-accent/80 text-white">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Drivers
+        <h2 className="text-2xl font-bold text-destructive">Vehicle Not Found</h2>
+        <p className="mt-2">The vehicle with Registration Number "{id}" could not be found.</p>
+        <Button onClick={() => router.push('/vehicles')} className="mt-4 bg-primary-accent hover:bg-primary-accent/80 text-white">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vehicles
         </Button>
       </div>
     );
@@ -174,31 +174,24 @@ export default function SingleDriverPage() {
   return (
     <div className="flex flex-col gap-6 p-4 lg:p-6">
       <div className="flex items-center justify-between">
-        <Button onClick={() => router.push('/drivers')} variant="outline" className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Drivers
+        <Button onClick={() => router.push('/vehicles')} variant="outline" className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vehicles
         </Button>
-        <h1 className="text-3xl font-bold text-primary-accent">Driver: {driver.name} ({driver.drv_id})</h1>
+        <h1 className="text-3xl font-bold text-primary-accent">Vehicle: {vehicle.reg_no} ({vehicle.company} {vehicle.model})</h1>
         <div></div> {/* Spacer for alignment */}
       </div>
 
       <Card className="glassmorphism-card border-primary-accent/30">
         <CardHeader>
-          <CardTitle className="text-secondary-accent">Driver Details</CardTitle>
+          <CardTitle className="text-secondary-accent">Vehicle Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-text-light">
-          <div className="flex items-center gap-4">
-            <img
-              src={driver.photo_url || '/placeholder-avatar.png'}
-              alt={driver.name}
-              className="h-24 w-24 rounded-full object-cover border border-primary-accent/50"
-            />
-            <div>
-              <p className="text-lg font-semibold text-white">{driver.name}</p>
-              <p className="text-sm text-gray-300">ID: {driver.drv_id}</p>
-              <p className="text-sm text-gray-300">Email: {driver.email || 'N/A'}</p>
-              <p className="text-sm text-gray-300">Phone: {driver.phone || 'N/A'}</p>
-              <p className="text-sm text-gray-300">Status: <span className={`font-semibold ${driver.status === 'active' ? 'text-secondary-accent' : 'text-warning-accent'}`}>{driver.status}</span></p>
-            </div>
+          <div>
+            <p className="text-lg font-semibold text-white">Registration No: {vehicle.reg_no}</p>
+            <p className="text-sm text-gray-300">Company: {vehicle.company}</p>
+            <p className="text-sm text-gray-300">Model: {vehicle.model}</p>
+            <p className="text-sm text-gray-300">Year: {vehicle.year}</p>
+            <p className="text-sm text-gray-300">Status: <span className={`font-semibold ${vehicle.status === 'Good' ? 'text-secondary-accent' : 'text-warning-accent'}`}>{vehicle.status}</span></p>
           </div>
         </CardContent>
       </Card>
@@ -237,7 +230,7 @@ export default function SingleDriverPage() {
             <Button
               variant="outline"
               className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
-              onClick={fetchDriverTrips}
+              onClick={fetchVehicleTrips}
               disabled={loading}
             >
               Refresh Trips
@@ -274,10 +267,10 @@ export default function SingleDriverPage() {
                   <TableRow className="bg-gray-800/50 text-secondary-accent">
                     <TableHead>From</TableHead>
                     <TableHead>To</TableHead>
-                    <TableHead>Vehicle</TableHead>
+                    <TableHead>Driver</TableHead>
                     <TableHead>Distance</TableHead>
                     <TableHead>Avg Speed</TableHead>
-                    <TableHead>Driver Salary</TableHead>
+                    <TableHead>Maintenance Cost</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Start Time</TableHead>
                   </TableRow>
@@ -287,10 +280,10 @@ export default function SingleDriverPage() {
                     <TableRow key={trip.trip_id} className="hover:bg-gray-700/30 transition-colors">
                       <TableCell className="text-gray-300">{trip.origin}</TableCell>
                       <TableCell className="text-gray-300">{trip.destination}</TableCell>
-                      <TableCell className="text-gray-300">{trip.vehicles?.reg_no || 'N/A'}</TableCell>
+                      <TableCell className="text-gray-300">{trip.drivers?.name || 'N/A'}</TableCell>
                       <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || '0.00'} km</TableCell>
                       <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || '0.00'} km/h</TableCell>
-                      <TableCell className="text-secondary-accent">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.maintenance_cost?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -312,7 +305,7 @@ export default function SingleDriverPage() {
             </ScrollArea>
           )}
           <div className="mt-4 p-3 bg-gray-800/50 rounded-md border border-primary-accent/20 text-right text-lg font-bold text-white">
-            Total Salary for {format(selectedMonth, "MMM yyyy")}: <span className="text-secondary-accent">₹{totalMonthlySalary.toFixed(2)}</span>
+            Total Maintenance Cost for {format(selectedMonth, "MMM yyyy")}: <span className="text-secondary-accent">₹{totalMonthlyMaintenance.toFixed(2)}</span>
           </div>
         </CardContent>
       </Card>
