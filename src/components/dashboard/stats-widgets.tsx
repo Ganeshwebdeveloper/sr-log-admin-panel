@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Car, Users } from 'lucide-react';
+import { Car, Users, Bell } from 'lucide-react'; // Added Bell import
 import { supabaseBrowser } from '@/lib/supabase';
 import { toast } from 'sonner';
 
