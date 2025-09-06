@@ -11,7 +11,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Database } from '@/types/supabase';
 import { useAuth } from '@/components/auth/auth-provider';
 
-type Message = Database['public']['Tables']['messages']['Row'];
+// Extend the Message type for optimistic updates
+type Message = Database['public']['Tables']['messages']['Row'] & {
+  is_optimistic?: boolean;
+};
 
 export function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,17 +24,18 @@ export function ChatBox() {
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const fetchMessages = useCallback(async () => {
+  // Function to fetch initial messages
+  const fetchInitialMessages = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true })
-        .limit(50); // Limit to recent messages
+        .limit(50);
 
       if (error) throw error;
-      setMessages(data);
+      setMessages(data.map(msg => ({ ...msg, is_optimistic: false }))); // Mark all fetched messages as not optimistic
     } catch (error: any) {
       toast.error(`Failed to fetch messages: ${error.message}`);
       console.error('Error fetching messages:', error);
@@ -41,20 +45,47 @@ export function ChatBox() {
   }, [supabase]);
 
   useEffect(() => {
-    fetchMessages();
+    fetchInitialMessages(); // Fetch messages on initial load
 
     const channel = supabase
       .channel('public:messages')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-        console.log('Message change received!', payload);
-        fetchMessages(); // Re-fetch all messages on any change
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        console.log('Realtime message received!', payload);
+        const incomingMessage = payload.new as Message;
+
+        setMessages((prevMessages) => {
+          // 1. Check if a message with this actual Supabase ID already exists.
+          // This handles cases where the message might have been added by another means
+          // or if the Realtime event is somehow duplicated.
+          if (prevMessages.some(msg => msg.id === incomingMessage.id)) {
+            return prevMessages; // Message already exists, ignore to prevent duplicates
+          }
+
+          // 2. Try to find and replace an optimistic message from this client.
+          // We match by sender and message content, assuming a user won't send the exact same message twice very quickly.
+          const optimisticMessageIndex = prevMessages.findIndex(
+            (msg) => msg.is_optimistic &&
+                     msg.sender === incomingMessage.sender &&
+                     msg.message === incomingMessage.message
+          );
+
+          if (optimisticMessageIndex > -1) {
+            // If an optimistic message is found, replace it with the real message from Supabase
+            const updatedMessages = [...prevMessages];
+            updatedMessages[optimisticMessageIndex] = { ...incomingMessage, is_optimistic: false };
+            return updatedMessages;
+          } else {
+            // If no matching optimistic message, it's a new message from another client.
+            return [...prevMessages, { ...incomingMessage, is_optimistic: false }];
+          }
+        });
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchMessages, supabase]);
+  }, [fetchInitialMessages, supabase]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -64,18 +95,47 @@ export function ChatBox() {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
+    const messageContent = newMessage.trim();
+    const senderId = user?.id || 'admin';
+    const now = new Date().toISOString();
+    const clientTempId = crypto.randomUUID(); // Client-generated temporary ID for optimistic display
+
+    // Optimistic update: Add message to state immediately
+    const optimisticMessage: Message = {
+      id: clientTempId, // Use client-generated ID for immediate display
+      sender: senderId,
+      message: messageContent,
+      type: 'text',
+      created_at: now,
+      file_url: null,
+      is_optimistic: true, // Mark as optimistic
+    };
+
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setNewMessage(''); // Clear input immediately
+
     try {
+      // Insert into Supabase. The Realtime listener will then receive this message
+      // with its actual Supabase-generated ID and replace the optimistic one.
       const { error } = await supabase.from('messages').insert({
-        sender: user?.id || 'admin', // Assuming admin user for now
-        message: newMessage.trim(),
+        sender: senderId,
+        message: messageContent,
         type: 'text',
       });
 
-      if (error) throw error;
-      setNewMessage('');
+      if (error) {
+        toast.error(`Failed to send message: ${error.message}`);
+        console.error('Error sending message:', error);
+        // Revert optimistic update if insertion fails
+        setMessages((prev) => prev.filter((msg) => msg.id !== clientTempId));
+        setNewMessage(messageContent); // Restore message to input
+      }
     } catch (error: any) {
       toast.error(`Failed to send message: ${error.message}`);
       console.error('Error sending message:', error);
+      // Revert optimistic update if insertion fails
+      setMessages((prev) => prev.filter((msg) => msg.id !== clientTempId));
+      setNewMessage(messageContent); // Restore message to input
     }
   };
 
@@ -103,7 +163,7 @@ export function ChatBox() {
             ) : (
               messages.map((msg) => (
                 <div
-                  key={msg.id}
+                  key={msg.id} // Use the message ID (temp or real) for key
                   className={`flex ${msg.sender === (user?.id || 'admin') ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
