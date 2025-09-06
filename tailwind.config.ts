@@ -59,7 +59,12 @@ export default {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+            // Custom Neon Colors
+            'neon-blue': '#00F0FF',
+            'neon-green': '#39FF14',
+            'neon-purple': '#BC13FE',
+            'neon-yellow': '#FFF000',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
