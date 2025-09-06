@@ -1,0 +1,247 @@
+"use client";
+
+import React, { useEffect, useState, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, CalendarIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { supabaseBrowser } from '@/lib/supabase';
+import { toast } from 'sonner';
+import { Database } from '@/types/supabase';
+import { format, startOfMonth, endOfMonth, getMonth, getYear } from 'date-fns';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+type Driver = Database['public']['Tables']['drivers']['Row'];
+type Trip = Database['public']['Tables']['trips']['Row'] & {
+  vehicles: { reg_no: string } | null;
+};
+
+export default function SingleDriverPage() {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const supabase = supabaseBrowser;
+
+  const [driver, setDriver] = useState<Driver | null>(null);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
+  const [totalMonthlySalary, setTotalMonthlySalary] = useState<number>(0);
+
+  const fetchDriverDetails = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: driverData, error: driverError } = await supabase
+        .from('drivers')
+        .select('*')
+        .eq('drv_id', id)
+        .single();
+
+      if (driverError) throw driverError;
+      setDriver(driverData);
+    } catch (error: any) {
+      toast.error(`Failed to fetch driver details: ${error.message}`);
+      console.error('Error fetching driver details:', error);
+      setDriver(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, supabase]);
+
+  const fetchDriverTrips = useCallback(async () => {
+    setLoading(true);
+    try {
+      const start = format(startOfMonth(selectedMonth), 'yyyy-MM-dd HH:mm:ss');
+      const end = format(endOfMonth(selectedMonth), 'yyyy-MM-dd HH:mm:ss');
+
+      const { data: tripsData, error: tripsError } = await supabase
+        .from('trips')
+        .select(`
+          *,
+          vehicles(reg_no)
+        `)
+        .eq('drv_id', id)
+        .gte('start_time', start)
+        .lte('start_time', end)
+        .order('start_time', { ascending: false })
+        .limit(30); // Last 30 trips
+
+      if (tripsError) throw tripsError;
+      setTrips(tripsData as Trip[]);
+
+      const totalSalary = tripsData.reduce((sum, trip) => sum + (trip.driver_salary || 0), 0);
+      setTotalMonthlySalary(totalSalary);
+
+    } catch (error: any) {
+      toast.error(`Failed to fetch driver trips: ${error.message}`);
+      console.error('Error fetching driver trips:', error);
+      setTrips([]);
+      setTotalMonthlySalary(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, selectedMonth, supabase]);
+
+  useEffect(() => {
+    fetchDriverDetails();
+  }, [fetchDriverDetails]);
+
+  useEffect(() => {
+    if (driver) {
+      fetchDriverTrips();
+    }
+  }, [driver, fetchDriverTrips]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-950 text-primary-accent text-2xl">
+        Loading driver details...
+      </div>
+    );
+  }
+
+  if (!driver) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center text-gray-400">
+        <h2 className="text-2xl font-bold text-destructive">Driver Not Found</h2>
+        <p className="mt-2">The driver with ID "{id}" could not be found.</p>
+        <Button onClick={() => router.push('/drivers')} className="mt-4 bg-primary-accent hover:bg-primary-accent/80 text-white">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Drivers
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6 p-4 lg:p-6">
+      <div className="flex items-center justify-between">
+        <Button onClick={() => router.push('/drivers')} variant="outline" className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Drivers
+        </Button>
+        <h1 className="text-3xl font-bold text-primary-accent">Driver: {driver.name} ({driver.drv_id})</h1>
+        <div></div> {/* Spacer for alignment */}
+      </div>
+
+      <Card className="glassmorphism-card border-primary-accent/30">
+        <CardHeader>
+          <CardTitle className="text-secondary-accent">Driver Details</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-text-light">
+          <div className="flex items-center gap-4">
+            <img
+              src={driver.photo_url || '/placeholder-avatar.png'}
+              alt={driver.name}
+              className="h-24 w-24 rounded-full object-cover border border-primary-accent/50"
+            />
+            <div>
+              <p className="text-lg font-semibold text-white">{driver.name}</p>
+              <p className="text-sm text-gray-300">ID: {driver.drv_id}</p>
+              <p className="text-sm text-gray-300">Email: {driver.email || 'N/A'}</p>
+              <p className="text-sm text-gray-300">Phone: {driver.phone || 'N/A'}</p>
+              <p className="text-sm text-gray-300">Status: <span className={`font-semibold ${driver.status === 'active' ? 'text-secondary-accent' : 'text-warning-accent'}`}>{driver.status}</span></p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="glassmorphism-card border-primary-accent/30">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-secondary-accent">Trip History</CardTitle>
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal bg-gray-700/50 border-primary-accent/20 text-white hover:bg-gray-600/50",
+                    !selectedMonth && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 text-primary-accent" />
+                  {selectedMonth ? format(selectedMonth, "MMM yyyy") : <span>Pick a month</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-card border-border text-foreground" align="end">
+                <Calendar
+                  mode="single"
+                  captionLayout="dropdown-buttons"
+                  selected={selectedMonth}
+                  onSelect={(date) => {
+                    if (date) setSelectedMonth(date);
+                  }}
+                  fromYear={2000}
+                  toYear={getYear(new Date()) + 1}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Button
+              variant="outline"
+              className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
+              onClick={fetchDriverTrips}
+              disabled={loading}
+            >
+              Refresh Trips
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center text-gray-400">Loading trips...</div>
+          ) : trips.length === 0 ? (
+            <div className="text-center text-gray-400">No trips found for {format(selectedMonth, "MMM yyyy")}.</div>
+          ) : (
+            <ScrollArea className="h-[400px] w-full rounded-md border border-primary-accent/20">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-800/50 text-secondary-accent">
+                    <TableHead>From</TableHead>
+                    <TableHead>To</TableHead>
+                    <TableHead>Vehicle</TableHead>
+                    <TableHead>Distance</TableHead>
+                    <TableHead>Avg Speed</TableHead>
+                    <TableHead>Driver Salary</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Start Time</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {trips.map((trip) => (
+                    <TableRow key={trip.trip_id} className="hover:bg-gray-700/30 transition-colors">
+                      <TableCell className="text-gray-300">{trip.origin}</TableCell>
+                      <TableCell className="text-gray-300">{trip.destination}</TableCell>
+                      <TableCell className="text-gray-300">{trip.vehicles?.reg_no || 'N/A'}</TableCell>
+                      <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || '0.00'} km</TableCell>
+                      <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || '0.00'} km/h</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            trip.status === 'started'
+                              ? 'bg-primary-accent/20 text-primary-accent'
+                              : trip.status === 'finished'
+                              ? 'bg-secondary-accent/20 text-secondary-accent'
+                              : 'bg-warning-accent/20 text-warning-accent'
+                          }`}
+                        >
+                          {trip.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-gray-300">{trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          )}
+          <div className="mt-4 p-3 bg-gray-800/50 rounded-md border border-primary-accent/20 text-right text-lg font-bold text-white">
+            Total Salary for {format(selectedMonth, "MMM yyyy")}: <span className="text-secondary-accent">₹{totalMonthlySalary.toFixed(2)}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
