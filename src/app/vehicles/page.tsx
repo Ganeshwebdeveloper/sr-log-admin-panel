@@ -129,7 +129,7 @@ export default function VehiclesPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-800/50 text-secondary-accent">
-                    <TableHead>Registration No</TableHead>
+                    <TableHead>Registration No.</TableHead>
                     <TableHead>Company/Model</TableHead>
                     <TableHead>Year</TableHead>
                     <TableHead>Status</TableHead>

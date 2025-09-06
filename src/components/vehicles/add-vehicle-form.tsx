@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Form,
   FormControl,
@@ -29,7 +30,7 @@ const formSchema = z.object({
   reg_no: z.string().min(1, { message: 'Registration Number is required.' }),
   company: z.string().min(1, { message: 'Company is required.' }),
   model: z.string().min(1, { message: 'Model is required.' }),
-  year: z.number().min(1900).max(new Date().getFullYear() + 1, { message: 'Invalid year.' }),
+  year: z.coerce.number().min(1900).max(new Date().getFullYear() + 1, { message: 'Invalid year.' }),
   status: z.enum(['Good', 'Maintenance'], { message: 'Status is required.' }),
 });
 
@@ -112,7 +113,7 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
           name="reg_no"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Registration No</FormLabel>
+              <FormLabel className="text-text-light">Registration No.</FormLabel>
               <FormControl>
                 <Input
                   placeholder="KA01AB1234"
@@ -170,7 +171,6 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
                   type="number"
                   placeholder="2020"
                   {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value))}
                   className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
                 />
               </FormControl>

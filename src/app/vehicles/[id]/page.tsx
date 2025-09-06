@@ -15,8 +15,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+// Import for PDF export
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+
+// Import for Excel export
 import * as XLSX from 'xlsx';
 
 type Vehicle = Database['public']['Tables']['vehicles']['Row'];
@@ -25,7 +28,7 @@ type Trip = Database['public']['Tables']['trips']['Row'] & {
 };
 
 export default function SingleVehiclePage() {
-  const { id } = useParams<{ id: string }>(); // id here is reg_no
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const supabase = supabaseBrowser;
 
@@ -99,38 +102,41 @@ export default function SingleVehiclePage() {
     }
   }, [vehicle, fetchVehicleTrips]);
 
-  const exportToPdf = () => {
+  const handleExportPdf = () => {
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(`Trip History for Vehicle ${vehicle?.reg_no} (${format(selectedMonth, "MMM yyyy")})`, 14, 20);
+    const tableColumn = ["From", "To", "Driver", "Distance (km)", "Avg Speed (km/h)", "Maintenance Cost (₹)", "Status", "Start Time"];
+    const tableRows = trips.map(trip => [
+      trip.origin,
+      trip.destination,
+      trip.drivers?.name || 'N/A',
+      trip.distance?.toFixed(2) || '0.00',
+      trip.avg_speed?.toFixed(2) || '0.00',
+      `₹${trip.maintenance_cost?.toFixed(2) || '0.00'}`,
+      trip.status,
+      trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
+    ]);
+
+    doc.setFontSize(18);
+    doc.text(`Trip History for Vehicle: ${vehicle?.reg_no} (${vehicle?.model})`, 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Month: ${format(selectedMonth, "MMM yyyy")}`, 14, 28);
+    doc.text(`Total Monthly Maintenance: ₹${totalMonthlyMaintenance.toFixed(2)}`, 14, 36);
 
     (doc as any).autoTable({
-      startY: 30,
-      head: [['From', 'To', 'Driver', 'Distance (km)', 'Avg Speed (km/h)', 'Maintenance Cost (₹)', 'Status', 'Start Time']],
-      body: trips.map(trip => [
-        trip.origin,
-        trip.destination,
-        trip.drivers?.name || 'N/A',
-        trip.distance?.toFixed(2) || '0.00',
-        trip.avg_speed?.toFixed(2) || '0.00',
-        `₹${trip.maintenance_cost?.toFixed(2) || '0.00'}`,
-        trip.status,
-        trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
-      ]),
-      theme: 'striped',
-      styles: { fillColor: [30, 41, 59] },
-      headStyles: { fillColor: [79, 70, 229] },
-      alternateRowStyles: { fillColor: [45, 55, 72] },
+      startY: 45,
+      head: [tableColumn],
+      body: tableRows,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [79, 70, 229] }, // primary-accent
+      alternateRowStyles: { fillColor: [30, 41, 59] }, // dark gray
+      bodyStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] }, // even darker gray, white text
     });
 
-    doc.setFontSize(12);
-    doc.text(`Total Maintenance Cost for ${format(selectedMonth, "MMM yyyy")}: ₹${totalMonthlyMaintenance.toFixed(2)}`, 14, (doc as any).autoTable.previous.finalY + 10);
-
-    doc.save(`vehicle_${vehicle?.reg_no}_trips_${format(selectedMonth, "MMM_yyyy")}.pdf`);
-    toast.success('Trip history exported to PDF!');
+    doc.save(`Vehicle_${vehicle?.reg_no}_Trips_${format(selectedMonth, "MMM_yyyy")}.pdf`);
+    toast.success('Trip history exported as PDF!');
   };
 
-  const exportToExcel = () => {
+  const handleExportExcel = () => {
     const data = trips.map(trip => ({
       From: trip.origin,
       To: trip.destination,
@@ -143,12 +149,10 @@ export default function SingleVehiclePage() {
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.sheet_add_json(ws, [{ 'Total Monthly Maintenance Cost (₹)': totalMonthlyMaintenance.toFixed(2) }], { origin: -1 });
-
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Trip History");
-    XLSX.writeFile(wb, `vehicle_${vehicle?.reg_no}_trips_${format(selectedMonth, "MMM_yyyy")}.xlsx`);
-    toast.success('Trip history exported to Excel!');
+    XLSX.utils.book_append_sheet(wb, ws, "Vehicle Trips");
+    XLSX.writeFile(wb, `Vehicle_${vehicle?.reg_no}_Trips_${format(selectedMonth, "MMM_yyyy")}.xlsx`);
+    toast.success('Trip history exported as Excel!');
   };
 
   if (loading) {
@@ -163,7 +167,7 @@ export default function SingleVehiclePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center text-gray-400">
         <h2 className="text-2xl font-bold text-destructive">Vehicle Not Found</h2>
-        <p className="mt-2">The vehicle with Registration Number "{id}" could not be found.</p>
+        <p className="mt-2">The vehicle with Registration No. "{id}" could not be found.</p>
         <Button onClick={() => router.push('/vehicles')} className="mt-4 bg-primary-accent hover:bg-primary-accent/80 text-white">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vehicles
         </Button>
@@ -177,7 +181,7 @@ export default function SingleVehiclePage() {
         <Button onClick={() => router.push('/vehicles')} variant="outline" className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vehicles
         </Button>
-        <h1 className="text-3xl font-bold text-primary-accent">Vehicle: {vehicle.reg_no} ({vehicle.company} {vehicle.model})</h1>
+        <h1 className="text-3xl font-bold text-primary-accent">Vehicle: {vehicle.reg_no} ({vehicle.model})</h1>
         <div></div> {/* Spacer for alignment */}
       </div>
 
@@ -188,9 +192,9 @@ export default function SingleVehiclePage() {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-text-light">
           <div>
             <p className="text-lg font-semibold text-white">Registration No: {vehicle.reg_no}</p>
-            <p className="text-sm text-gray-300">Company: {vehicle.company}</p>
-            <p className="text-sm text-gray-300">Model: {vehicle.model}</p>
-            <p className="text-sm text-gray-300">Year: {vehicle.year}</p>
+            <p className="text-sm text-gray-300">Company: {vehicle.company || 'N/A'}</p>
+            <p className="text-sm text-gray-300">Model: {vehicle.model || 'N/A'}</p>
+            <p className="text-sm text-gray-300">Year: {vehicle.year || 'N/A'}</p>
             <p className="text-sm text-gray-300">Status: <span className={`font-semibold ${vehicle.status === 'Good' ? 'text-secondary-accent' : 'text-warning-accent'}`}>{vehicle.status}</span></p>
           </div>
         </CardContent>
@@ -238,8 +242,8 @@ export default function SingleVehiclePage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={exportToPdf}
-              disabled={trips.length === 0}
+              onClick={handleExportPdf}
+              disabled={loading || trips.length === 0}
               className="bg-transparent border-secondary-accent/30 text-secondary-accent hover:bg-secondary-accent/10"
             >
               <FileText className="h-4 w-4 mr-2" /> PDF
@@ -247,9 +251,9 @@ export default function SingleVehiclePage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={exportToExcel}
-              disabled={trips.length === 0}
-              className="bg-transparent border-warning-accent/30 text-warning-accent hover:bg-warning-accent/10"
+              onClick={handleExportExcel}
+              disabled={loading || trips.length === 0}
+              className="bg-transparent border-secondary-accent/30 text-secondary-accent hover:bg-secondary-accent/10"
             >
               <FileSpreadsheet className="h-4 w-4 mr-2" /> Excel
             </Button>
