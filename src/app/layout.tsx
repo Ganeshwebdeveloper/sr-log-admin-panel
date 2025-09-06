@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from '@/components/auth/auth-provider';
-import { ThemeProvider } from "@/components/theme-provider"; // Will create this next
+import { ThemeProvider } from "@/components/theme-provider";
+import { MainLayout } from "@/components/layout/main-layout"; // Import MainLayout
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <MainLayout> {/* Wrap children with MainLayout */}
+              {children}
+            </MainLayout>
           </AuthProvider>
         </ThemeProvider>
       </body>
