@@ -288,9 +288,12 @@ export default function TripsPage() {
             <SelectContent className="bg-card border-border text-foreground">
               <SelectItem value="">All Drivers</SelectItem>
               {drivers.map((driver) => (
-                <SelectItem key={driver.drv_id} value={driver.drv_id}>
-                  {driver.name}
-                </SelectItem>
+                // Ensure drv_id is not an empty string
+                driver.drv_id ? (
+                  <SelectItem key={driver.drv_id} value={driver.drv_id}>
+                    {driver.name}
+                  </SelectItem>
+                ) : null
               ))}
             </SelectContent>
           </Select>
@@ -302,9 +305,12 @@ export default function TripsPage() {
             <SelectContent className="bg-card border-border text-foreground">
               <SelectItem value="">All Vehicles</SelectItem>
               {vehicles.map((vehicle) => (
-                <SelectItem key={vehicle.reg_no} value={vehicle.reg_no}>
-                  {vehicle.company} {vehicle.model} ({vehicle.reg_no})
-                </SelectItem>
+                // Ensure reg_no is not an empty string
+                vehicle.reg_no ? (
+                  <SelectItem key={vehicle.reg_no} value={vehicle.reg_no}>
+                    {vehicle.company} {vehicle.model} ({vehicle.reg_no})
+                  </SelectItem>
+                ) : null
               ))}
             </SelectContent>
           </Select>
