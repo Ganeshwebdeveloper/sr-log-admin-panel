@@ -58,43 +58,43 @@ export function AuthForm() {
     setLoading(false);
   };
 
-  // const handleSendOtp = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   const { error } = await supabase.auth.signInWithOtp({ email });
-  //   if (error) {
-  //     toast.error(error.message);
-  //   } else {
-  //     toast.success('OTP sent! Check your email.');
-  //     setMode('otp');
-  //   }
-  //   setLoading(false);
-  // };
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('OTP sent! Check your email.');
+      setMode('otp');
+    }
+    setLoading(false);
+  };
 
-  // const handleVerifyOtp = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setLoading(true);
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  //   try {
-  //     const { error } = await supabase.auth.verifyOtp({
-  //       email,
-  //       token: otp,
-  //       type: 'email' as const, // Explicitly define 'email' as a literal type
-  //     });
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email' as const, // Explicitly define 'email' as a literal type
+      });
 
-  //     if (error) {
-  //       toast.error(error.message);
-  //     } else {
-  //       toast.success('OTP verified! You are now logged in.');
-  //       router.push('/home');
-  //     }
-  //   } catch (err: any) {
-  //     console.error(err);
-  //     toast.error(err.message || 'Something went wrong during OTP verification.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('OTP verified! You are now logged in.');
+        router.push('/home');
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Something went wrong during OTP verification.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-md border border-primary-accent/30 shadow-lg">
@@ -140,20 +140,20 @@ export function AuthForm() {
               />
             </div>
           )}
-          // {mode === 'otp' && (
-          //   <div className="grid gap-2">
-          //     <Label htmlFor="otp" className="text-secondary-accent">OTP</Label>
-          //     <Input
-          //       id="otp"
-          //       type="text"
-          //       placeholder="123456"
-          //       required
-          //       value={otp}
-          //       onChange={(e) => setOtp(e.target.value)}
-          //       className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
-          //     />
-          //   </div>
-          // )}
+          {mode === 'otp' && (
+            <div className="grid gap-2">
+              <Label htmlFor="otp" className="text-secondary-accent">OTP</Label>
+              <Input
+                id="otp"
+                type="text"
+                placeholder="123456"
+                required
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+              />
+            </div>
+          )}
           <Button type="submit" className="w-full bg-primary-accent hover:bg-primary-accent/80 text-white font-bold" disabled={loading}>
             {loading ? 'Loading...' :
              mode === 'login' ? 'Login' :
