@@ -40,7 +40,6 @@ const formSchema = z.object({
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
   start_time: z.date({ required_error: 'Start time is required.' }),
-  // Removed: end_time, distance, avg_speed, current_location, fuel_cost, maintenance_cost
   driver_salary: z.preprocess(
     (val) => (val === '' ? undefined : Number(val)),
     z.number().min(0, { message: 'Driver salary must be a positive number.' }).optional()
@@ -58,13 +57,22 @@ interface AssignTripFormProps {
   onSuccess: () => void;
   onClose: () => void;
   initialData?: Trip;
+  availableDrivers: Driver[]; // New prop
+  availableVehicles: Vehicle[]; // New prop
+  allDrivers: Driver[]; // New prop for ensuring current driver is available on edit
+  allVehicles: Vehicle[]; // New prop for ensuring current vehicle is available on edit
 }
 
-export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFormProps) {
+export function AssignTripForm({
+  onSuccess,
+  onClose,
+  initialData,
+  availableDrivers,
+  availableVehicles,
+  allDrivers,
+  allVehicles,
+}: AssignTripFormProps) {
   const supabase = supabaseBrowser;
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
 
   const form = useForm<AssignTripFormValues>({
     resolver: zodResolver(formSchema),
@@ -79,31 +87,6 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
       status: initialData?.status || 'pending',
     },
   });
-
-  useEffect(() => {
-    const fetchDependencies = async () => {
-      setLoadingData(true);
-      try {
-        const { data: driversData, error: driversError } = await supabase
-          .from('drivers')
-          .select('drv_id, name');
-        if (driversError) throw driversError;
-        setDrivers(driversData);
-
-        const { data: vehiclesData, error: vehiclesError } = await supabase
-          .from('vehicles')
-          .select('reg_no, company, model');
-        if (vehiclesError) throw vehiclesError;
-        setVehicles(vehiclesData);
-      } catch (error: any) {
-        toast.error(`Failed to load form data: ${error.message}`);
-        console.error('Error fetching form dependencies:', error);
-      } finally {
-        setLoadingData(false);
-      }
-    };
-    fetchDependencies();
-  }, [supabase]);
 
   useEffect(() => {
     if (initialData) {
@@ -125,9 +108,7 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
       const driverSalary = values.driver_salary || 0;
       const profit = values.profit || 0;
 
-      // total_cost at creation will only include driver_salary and profit
-      // fuel_cost and maintenance_cost will be null initially
-      const totalCost = driverSalary + profit; // Assuming profit is part of the initial cost calculation for admin view
+      const totalCost = driverSalary + profit; // Initial calculation
 
       const tripData = {
         drv_id: values.drv_id,
@@ -151,7 +132,7 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
         // Update existing trip
         const { error } = await supabase
           .from('trips')
-          .update(tripData) // Only update the fields that are in the form
+          .update(tripData)
           .eq('trip_id', initialData.trip_id);
 
         if (error) throw error;
@@ -171,9 +152,15 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
     }
   };
 
-  if (loadingData) {
-    return <div className="text-center text-gray-400">Loading form data...</div>;
-  }
+  // Combine available drivers/vehicles with the currently selected one (if editing)
+  const driversForSelect = initialData?.drv_id
+    ? [...availableDrivers, ...allDrivers.filter(d => d.drv_id === initialData.drv_id && !availableDrivers.some(ad => ad.drv_id === d.drv_id))]
+    : availableDrivers;
+
+  const vehiclesForSelect = initialData?.vehicle_reg_no
+    ? [...availableVehicles, ...allVehicles.filter(v => v.reg_no === initialData.vehicle_reg_no && !availableVehicles.some(av => av.reg_no === v.reg_no))]
+    : availableVehicles;
+
 
   return (
     <Form {...form}>
@@ -184,14 +171,14 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-text-light">Driver</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
                     <SelectValue placeholder="Select a driver" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className="bg-card border-border text-foreground">
-                  {drivers.map((driver) => (
+                  {driversForSelect.map((driver) => (
                     <SelectItem key={driver.drv_id} value={driver.drv_id}>
                       {driver.name} ({driver.drv_id})
                     </SelectItem>
@@ -208,14 +195,14 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-text-light">Vehicle</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
                     <SelectValue placeholder="Select a vehicle" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className="bg-card border-border text-foreground">
-                  {vehicles.map((vehicle) => (
+                  {vehiclesForSelect.map((vehicle) => (
                     <SelectItem key={vehicle.reg_no} value={vehicle.reg_no}>
                       {vehicle.company} {vehicle.model} ({vehicle.reg_no})
                     </SelectItem>
@@ -353,7 +340,7 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-text-light">Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
                     <SelectValue placeholder="Select status" />

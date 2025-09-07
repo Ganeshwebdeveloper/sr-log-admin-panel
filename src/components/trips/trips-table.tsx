@@ -25,6 +25,8 @@ interface TripsTableProps {
   getSortIcon: (column: SortColumn) => '▲' | '▼' | null;
   handleEditTrip: (trip: Trip) => void;
   handleDeleteTrip: (trip_id: string) => void;
+  lockedDriverIds: Set<string>; // New prop
+  lockedVehicleRegNos: Set<string>; // New prop
 }
 
 export function TripsTable({
@@ -36,6 +38,8 @@ export function TripsTable({
   getSortIcon,
   handleEditTrip,
   handleDeleteTrip,
+  lockedDriverIds,
+  lockedVehicleRegNos,
 }: TripsTableProps) {
 
   if (loading) {
@@ -98,8 +102,18 @@ export function TripsTable({
             >
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.origin || '—'}</TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.destination || '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] font-medium text-white whitespace-nowrap">{trip.drivers?.name || '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.vehicles?.reg_no || '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] font-medium text-white whitespace-nowrap">
+                {trip.drivers?.name || '—'}
+                {(trip.drv_id && (trip.status === 'pending' || trip.status === 'started')) && (
+                  <span className="ml-2 px-2 py-1 text-xs rounded bg-red-100 text-red-600 font-medium">Locked</span>
+                )}
+              </TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">
+                {trip.vehicles?.reg_no || '—'}
+                {(trip.vehicle_reg_no && (trip.status === 'pending' || trip.status === 'started')) && (
+                  <span className="ml-2 px-2 py-1 text-xs rounded bg-red-100 text-red-600 font-medium">Locked</span>
+                )}
+              </TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] whitespace-nowrap">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-semibold ${

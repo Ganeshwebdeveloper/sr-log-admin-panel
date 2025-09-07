@@ -7,6 +7,7 @@ import { TripsActions } from '@/components/trips/trips-actions';
 import { TripsFilters } from '@/components/trips/trips-filters';
 import { TripsTable } from '@/components/trips/trips-table';
 import { Database } from '@/types/supabase';
+import { supabaseBrowser } from '@/lib/supabase'; // Ensure supabaseBrowser is imported for handleDeleteTrip
 
 type Trip = Database['public']['Tables']['trips']['Row'] & {
   drivers: { name: string } | null;
@@ -17,8 +18,12 @@ export default function TripsPage() {
   const {
     trips,
     loading,
-    drivers,
-    vehicles,
+    allDrivers,
+    availableDrivers,
+    allVehicles,
+    availableVehicles,
+    lockedDriverIds,
+    lockedVehicleRegNos,
     filterDriver,
     setFilterDriver,
     filterVehicle,
@@ -46,7 +51,6 @@ export default function TripsPage() {
     if (!confirm('Are you sure you want to delete this trip? This action cannot be undone.')) {
       return;
     }
-    // Assuming supabaseBrowser is available globally or passed down
     const supabase = supabaseBrowser;
     try {
       const { error } = await supabase
@@ -55,10 +59,8 @@ export default function TripsPage() {
         .eq('trip_id', trip_id);
 
       if (error) throw error;
-      // toast.success('Trip deleted successfully!'); // Toast handled by useTripsData's fetchTrips
-      fetchTrips(); // Re-fetch to update the list
+      fetchTrips(); // Re-fetch to update the list and lock states
     } catch (error: any) {
-      // toast.error(`Failed to delete trip: ${error.message}`); // Toast handled by useTripsData's fetchTrips
       console.error('Error deleting trip:', error);
     }
   };
@@ -74,11 +76,15 @@ export default function TripsPage() {
         setSelectedTrip={setSelectedTrip}
         isEditDialogOpen={isEditDialogOpen}
         setIsEditDialogOpen={setIsEditDialogOpen}
+        availableDrivers={availableDrivers}
+        availableVehicles={availableVehicles}
+        allDrivers={allDrivers}
+        allVehicles={allVehicles}
       />
 
       <TripsFilters
-        drivers={drivers}
-        vehicles={vehicles}
+        drivers={allDrivers} // Filters use all drivers for display, but the select dropdowns in the form use availableDrivers
+        vehicles={allVehicles} // Filters use all vehicles for display
         filterDriver={filterDriver}
         setFilterDriver={setFilterDriver}
         filterVehicle={filterVehicle}
@@ -99,6 +105,8 @@ export default function TripsPage() {
           getSortIcon={getSortIcon}
           handleEditTrip={handleEditTrip}
           handleDeleteTrip={handleDeleteTrip}
+          lockedDriverIds={lockedDriverIds}
+          lockedVehicleRegNos={lockedVehicleRegNos}
         />
       </Card>
     </div>

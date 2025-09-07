@@ -19,8 +19,12 @@ type SortDirection = 'asc' | 'desc';
 export function useTripsData() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [allDrivers, setAllDrivers] = useState<Driver[]>([]); // All drivers for display
+  const [availableDrivers, setAvailableDrivers] = useState<Driver[]>([]); // Filtered for assignment
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]); // All vehicles for display
+  const [availableVehicles, setAvailableVehicles] = useState<Vehicle[]>([]); // Filtered for assignment
+  const [lockedDriverIds, setLockedDriverIds] = useState<Set<string>>(new Set());
+  const [lockedVehicleRegNos, setLockedVehicleRegNos] = useState<Set<string>>(new Set());
 
   // Filter states
   const [filterDriver, setFilterDriver] = useState<string>('all');
@@ -68,6 +72,20 @@ export function useTripsData() {
 
       if (error) throw error;
       setTrips(data as Trip[]);
+
+      // Determine locked drivers and vehicles
+      const currentLockedDrivers = new Set<string>();
+      const currentLockedVehicles = new Set<string>();
+
+      data.forEach(trip => {
+        if (trip.status === 'pending' || trip.status === 'started') {
+          if (trip.drv_id) currentLockedDrivers.add(trip.drv_id);
+          if (trip.vehicle_reg_no) currentLockedVehicles.add(trip.vehicle_reg_no);
+        }
+      });
+      setLockedDriverIds(currentLockedDrivers);
+      setLockedVehicleRegNos(currentLockedVehicles);
+
     } catch (error: any) {
       toast.error(`Failed to fetch trips: ${error.message}`);
       console.error('Error fetching trips:', error);
@@ -82,17 +100,28 @@ export function useTripsData() {
         .from('drivers')
         .select('drv_id, name');
       if (driversError) throw driversError;
-      setDrivers(driversData);
+      setAllDrivers(driversData);
 
       const { data: vehiclesData, error: vehiclesError } = await supabase
         .from('vehicles')
         .select('reg_no, company, model');
       if (vehiclesError) throw vehiclesError;
-      setVehicles(vehiclesData);
+      setAllVehicles(vehiclesData);
+
     } catch (error: any) {
       console.error('Error fetching filter options:', error);
     }
   }, [supabase]);
+
+  // Effect to filter available drivers/vehicles whenever allDrivers/allVehicles or locked sets change
+  useEffect(() => {
+    const filteredDrivers = allDrivers.filter(driver => driver.drv_id && !lockedDriverIds.has(driver.drv_id));
+    setAvailableDrivers(filteredDrivers);
+
+    const filteredVehicles = allVehicles.filter(vehicle => vehicle.reg_no && !lockedVehicleRegNos.has(vehicle.reg_no));
+    setAvailableVehicles(filteredVehicles);
+  }, [allDrivers, allVehicles, lockedDriverIds, lockedVehicleRegNos]);
+
 
   useEffect(() => {
     fetchFilterOptions();
@@ -132,8 +161,12 @@ export function useTripsData() {
   return {
     trips,
     loading,
-    drivers,
-    vehicles,
+    allDrivers, // For display in table
+    availableDrivers, // For form dropdowns
+    allVehicles, // For display in table
+    availableVehicles, // For form dropdowns
+    lockedDriverIds,
+    lockedVehicleRegNos,
     filterDriver,
     setFilterDriver,
     filterVehicle,

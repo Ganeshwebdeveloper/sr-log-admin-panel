@@ -16,6 +16,8 @@ type Trip = Database['public']['Tables']['trips']['Row'] & {
   drivers: { name: string } | null;
   vehicles: { reg_no: string; company: string; model: string } | null;
 };
+type Driver = Database['public']['Tables']['drivers']['Row'];
+type Vehicle = Database['public']['Tables']['vehicles']['Row'];
 
 interface TripsActionsProps {
   trips: Trip[];
@@ -26,6 +28,10 @@ interface TripsActionsProps {
   setSelectedTrip: (trip: Trip | undefined) => void;
   isEditDialogOpen: boolean;
   setIsEditDialogOpen: (isOpen: boolean) => void;
+  availableDrivers: Driver[]; // New prop
+  availableVehicles: Vehicle[]; // New prop
+  allDrivers: Driver[]; // New prop
+  allVehicles: Vehicle[]; // New prop
 }
 
 export function TripsActions({
@@ -37,6 +43,10 @@ export function TripsActions({
   setSelectedTrip,
   isEditDialogOpen,
   setIsEditDialogOpen,
+  availableDrivers,
+  availableVehicles,
+  allDrivers,
+  allVehicles,
 }: TripsActionsProps) {
   const [isAssignTripDialogOpen, setIsAssignTripDialogOpen] = useState(false);
 
@@ -154,7 +164,14 @@ export function TripsActions({
             <DialogHeader>
               <DialogTitle className="text-primary-accent">Assign New Trip</DialogTitle>
             </DialogHeader>
-            <AssignTripForm onSuccess={onTripAdded} onClose={() => setIsAssignTripDialogOpen(false)} />
+            <AssignTripForm
+              onSuccess={onTripAdded}
+              onClose={() => setIsAssignTripDialogOpen(false)}
+              availableDrivers={availableDrivers}
+              availableVehicles={availableVehicles}
+              allDrivers={allDrivers}
+              allVehicles={allVehicles}
+            />
           </DialogContent>
         </Dialog>
         <Button
@@ -187,6 +204,10 @@ export function TripsActions({
               initialData={selectedTrip}
               onSuccess={onTripUpdated}
               onClose={() => setIsEditDialogOpen(false)}
+              availableDrivers={availableDrivers}
+              availableVehicles={availableVehicles}
+              allDrivers={allDrivers}
+              allVehicles={allVehicles}
             />
           )}
         </DialogContent>
