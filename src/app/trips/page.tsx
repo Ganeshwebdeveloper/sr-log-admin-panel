@@ -45,9 +45,9 @@ export default function TripsPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
   // Filter states
-  const [filterDriver, setFilterDriver] = useState<string>('');
-  const [filterVehicle, setFilterVehicle] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
+  const [filterDriver, setFilterDriver] = useState<string>('all'); // Default to 'all'
+  const [filterVehicle, setFilterVehicle] = useState<string>('all'); // Default to 'all'
+  const [filterStatus, setFilterStatus] = useState<string>('all'); // Default to 'all'
 
   // Sorting states
   const [sortColumn, setSortColumn] = useState<SortColumn>('start_time');
@@ -67,13 +67,13 @@ export default function TripsPage() {
         `);
 
       // Apply filters
-      if (filterDriver) {
+      if (filterDriver !== 'all') { // Check for 'all'
         query = query.eq('drv_id', filterDriver);
       }
-      if (filterVehicle) {
+      if (filterVehicle !== 'all') { // Check for 'all'
         query = query.eq('vehicle_reg_no', filterVehicle);
       }
-      if (filterStatus) {
+      if (filterStatus !== 'all') { // Check for 'all'
         query = query.eq('status', filterStatus);
       }
 
@@ -281,12 +281,12 @@ export default function TripsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Select onValueChange={setFilterDriver} value={filterDriver}>
+          <Select onValueChange={setFilterDriver} value={filterDriver} defaultValue="all">
             <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
               <SelectValue placeholder="Filter by Driver" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border text-foreground">
-              <SelectItem value="">All Drivers</SelectItem>
+              <SelectItem value="all">All Drivers</SelectItem> {/* Changed value to 'all' */}
               {drivers.map((driver) => (
                 // Ensure drv_id is not an empty string
                 driver.drv_id ? (
@@ -298,12 +298,12 @@ export default function TripsPage() {
             </SelectContent>
           </Select>
 
-          <Select onValueChange={setFilterVehicle} value={filterVehicle}>
+          <Select onValueChange={setFilterVehicle} value={filterVehicle} defaultValue="all">
             <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
               <SelectValue placeholder="Filter by Vehicle" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border text-foreground">
-              <SelectItem value="">All Vehicles</SelectItem>
+              <SelectItem value="all">All Vehicles</SelectItem> {/* Changed value to 'all' */}
               {vehicles.map((vehicle) => (
                 // Ensure reg_no is not an empty string
                 vehicle.reg_no ? (
@@ -315,12 +315,12 @@ export default function TripsPage() {
             </SelectContent>
           </Select>
 
-          <Select onValueChange={setFilterStatus} value={filterStatus}>
+          <Select onValueChange={setFilterStatus} value={filterStatus} defaultValue="all">
             <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
               <SelectValue placeholder="Filter by Status" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border text-foreground">
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem> {/* Changed value to 'all' */}
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="started">Started</SelectItem>
               <SelectItem value="finished">Finished</SelectItem>
