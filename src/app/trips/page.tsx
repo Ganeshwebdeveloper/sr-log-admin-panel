@@ -437,46 +437,46 @@ export default function TripsPage() {
             <div className="text-center text-gray-400">No trips found.</div>
           ) : (
             <ScrollArea className="h-[500px] w-full rounded-md border border-primary-accent/20">
-              <Table>
+              <Table className="min-w-full table-fixed border-collapse">
                 <TableHeader>
                   <TableRow className="bg-gray-800/50 text-secondary-accent">
-                    <TableHead className="text-left">From</TableHead>
-                    <TableHead className="text-left">To</TableHead>
-                    <TableHead onClick={() => handleSort('driver_name')} className="cursor-pointer hover:text-primary-accent text-left">
+                    <TableHead className="w-[10%] text-left">From</TableHead>
+                    <TableHead className="w-[10%] text-left">To</TableHead>
+                    <TableHead onClick={() => handleSort('driver_name')} className="w-[10%] cursor-pointer hover:text-primary-accent text-left">
                       Driver {getSortIcon('driver_name')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('vehicle_info')} className="cursor-pointer hover:text-primary-accent text-left">
+                    <TableHead onClick={() => handleSort('vehicle_info')} className="w-[10%] cursor-pointer hover:text-primary-accent text-left">
                       Vehicle {getSortIcon('vehicle_info')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('status')} className="cursor-pointer hover:text-primary-accent text-left">
+                    <TableHead onClick={() => handleSort('status')} className="w-[8%] cursor-pointer hover:text-primary-accent text-left">
                       Status {getSortIcon('status')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('start_time')} className="cursor-pointer hover:text-primary-accent text-left">
+                    <TableHead onClick={() => handleSort('start_time')} className="w-[12%] cursor-pointer hover:text-primary-accent text-center">
                       Start Time {getSortIcon('start_time')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('end_time')} className="cursor-pointer hover:text-primary-accent text-left">
+                    <TableHead onClick={() => handleSort('end_time')} className="w-[12%] cursor-pointer hover:text-primary-accent text-center">
                       End Time {getSortIcon('end_time')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('distance')} className="cursor-pointer hover:text-primary-accent text-right">
+                    <TableHead onClick={() => handleSort('distance')} className="w-[8%] cursor-pointer hover:text-primary-accent text-right">
                       Distance (km) {getSortIcon('distance')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('avg_speed')} className="cursor-pointer hover:text-primary-accent text-right">
+                    <TableHead onClick={() => handleSort('avg_speed')} className="w-[8%] cursor-pointer hover:text-primary-accent text-right">
                       Avg Speed (km/h) {getSortIcon('avg_speed')}
                     </TableHead>
-                    <TableHead className="text-left">Current Location</TableHead>
-                    <TableHead onClick={() => handleSort('driver_salary')} className="cursor-pointer hover:text-primary-accent text-right">
+                    <TableHead className="w-[10%] text-left">Current Location</TableHead>
+                    <TableHead onClick={() => handleSort('driver_salary')} className="w-[8%] cursor-pointer hover:text-primary-accent text-right">
                       Salary (₹) {getSortIcon('driver_salary')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('fuel_cost')} className="cursor-pointer hover:text-primary-accent text-right">
+                    <TableHead onClick={() => handleSort('fuel_cost')} className="w-[8%] cursor-pointer hover:text-primary-accent text-right">
                       Fuel Cost (₹) {getSortIcon('fuel_cost')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('profit')} className="cursor-pointer hover:text-primary-accent text-right">
+                    <TableHead onClick={() => handleSort('profit')} className="w-[8%] cursor-pointer hover:text-primary-accent text-right">
                       Profit (₹) {getSortIcon('profit')}
                     </TableHead>
-                    <TableHead onClick={() => handleSort('total_cost')} className="cursor-pointer hover:text-primary-accent text-right">
+                    <TableHead onClick={() => handleSort('total_cost')} className="w-[8%] cursor-pointer hover:text-primary-accent text-right">
                       Total Cost (₹) {getSortIcon('total_cost')}
                     </TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-[8%] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -485,8 +485,8 @@ export default function TripsPage() {
                       key={trip.trip_id}
                       className="hover:bg-gray-700/30 transition-colors"
                     >
-                      <TableCell className="text-left text-gray-300">{trip.origin}</TableCell>
-                      <TableCell className="text-left text-gray-300">{trip.destination}</TableCell>
+                      <TableCell className="text-left text-gray-300">{trip.origin || '—'}</TableCell>
+                      <TableCell className="text-left text-gray-300">{trip.destination || '—'}</TableCell>
                       <TableCell className="text-left font-medium text-white">{trip.drivers?.name || '—'}</TableCell>
                       <TableCell className="text-left text-gray-300">{trip.vehicles?.reg_no || '—'}</TableCell>
                       <TableCell className="text-left">
@@ -499,12 +499,12 @@ export default function TripsPage() {
                               : 'bg-warning-accent/20 text-warning-accent'
                           }`}
                         >
-                          {trip.status}
+                          {trip.status || '—'}
                         </span>
                       </TableCell>
-                      <TableCell className="text-left text-gray-300">{trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
-                      <TableCell className="text-left text-gray-300">{trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
-                      <TableCell className="text-right text-gray-300 flex items-center justify-end">
+                      <TableCell className="text-center text-gray-300">{trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
+                      <TableCell className="text-center text-gray-300">{trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
+                      <TableCell className="text-right text-gray-300 flex items-center justify-end whitespace-nowrap">
                         {trip.distance?.toFixed(2) || '—'}
                         {trip.distance !== null && (
                           <Button
@@ -518,7 +518,7 @@ export default function TripsPage() {
                           </Button>
                         )}
                       </TableCell>
-                      <TableCell className="text-right text-gray-300 flex items-center justify-end">
+                      <TableCell className="text-right text-gray-300 flex items-center justify-end whitespace-nowrap">
                         {trip.avg_speed?.toFixed(2) || '—'}
                         {trip.avg_speed !== null && (
                           <Button
@@ -532,7 +532,7 @@ export default function TripsPage() {
                           </Button>
                         )}
                       </TableCell>
-                      <TableCell className="text-left text-warning-accent flex items-center">
+                      <TableCell className="text-left text-warning-accent flex items-center whitespace-nowrap">
                         {trip.current_location || '—'}
                         {trip.current_location !== null && (
                           <Button
@@ -546,11 +546,11 @@ export default function TripsPage() {
                           </Button>
                         )}
                       </TableCell>
-                      <TableCell className="text-right text-secondary-accent">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
-                      <TableCell className="text-right text-secondary-accent">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
-                      <TableCell className="text-right text-secondary-accent">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
-                      <TableCell className="text-right text-secondary-accent">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right text-secondary-accent whitespace-nowrap">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-right text-secondary-accent whitespace-nowrap">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-right text-secondary-accent whitespace-nowrap">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-right text-secondary-accent whitespace-nowrap">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-right whitespace-nowrap">
                         <Button
                           variant="ghost"
                           size="icon"
