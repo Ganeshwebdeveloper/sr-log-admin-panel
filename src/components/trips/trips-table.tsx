@@ -146,7 +146,21 @@ export function TripsTable({
                   )}
                 </div>
               </TableCell>
-              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-center text-gray-300 whitespace-nowrap">
+                <div className="flex flex-col items-center justify-center h-full">
+                  {trip.end_time ? (
+                    <>
+                      <span className="font-bold text-[13px] text-white">{format(new Date(trip.end_time), 'dd/MM/yyyy')}</span>
+                      <span className="text-[12px] text-gray-300">{format(new Date(trip.end_time), 'hh:mm a')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-bold text-[13px] text-white">—</span>
+                      <span className="text-[12px] text-gray-300">—</span>
+                    </>
+                  )}
+                </div>
+              </TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">
                 {trip.distance?.toFixed(2) || '—'}
               </TableCell>

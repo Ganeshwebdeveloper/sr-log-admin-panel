@@ -65,8 +65,20 @@ export function useTripsData() {
       const end = format(endOfMonth(selectedMonth), 'yyyy-MM-dd HH:mm:ss');
       query = query.gte('start_time', start).lte('start_time', end);
 
-      // Apply sorting
-      query = query.order(sortColumn === 'driver_name' ? 'drivers.name' : sortColumn === 'vehicle_info' ? 'vehicles.reg_no' : sortColumn, { ascending: sortDirection === 'asc' });
+      // Map sortColumn to actual database column for Supabase order clause
+      let dbSortColumn: string;
+      switch (sortColumn) {
+        case 'driver_name':
+          dbSortColumn = 'drivers.name';
+          break;
+        case 'vehicle_info':
+          dbSortColumn = 'vehicles.reg_no'; // Sorting by reg_no for vehicle info
+          break;
+        default:
+          dbSortColumn = sortColumn as string; // Direct mapping for other columns
+      }
+
+      query = query.order(dbSortColumn, { ascending: sortDirection === 'asc' });
 
       const { data, error } = await query;
 
@@ -145,6 +157,7 @@ export function useTripsData() {
       if (prevColumn === column) {
         setSortDirection((prevDirection) => (prevDirection === 'asc' ? 'desc' : 'asc'));
       } else {
+        setSortColumn(column); // Reset to 'asc' when changing column
         setSortDirection('asc');
       }
       return column;
