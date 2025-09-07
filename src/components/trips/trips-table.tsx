@@ -113,16 +113,7 @@ export function TripsTable({
                   {trip.status || '—'}
                 </span>
               </TableCell>
-              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">
-                {trip.start_time ? (
-                  <div className="flex flex-col items-start">
-                    <span>{format(new Date(trip.start_time), 'yyyy-MM-dd')}</span>
-                    <span>{format(new Date(trip.start_time), 'HH:mm:ss')}</span>
-                  </div>
-                ) : (
-                  '—'
-                )}
-              </TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">
                 {trip.distance?.toFixed(2) || '—'}
