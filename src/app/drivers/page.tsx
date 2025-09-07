@@ -111,12 +111,15 @@ export default function DriversPage() {
   };
 
   const exportToPdf = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF('p', 'mm', 'a4'); // A4 portrait
+    const title = "Drivers Report";
+    const fileName = `drivers_report.pdf`;
+
     doc.setFontSize(16);
-    doc.text("All Drivers List", 14, 20);
+    doc.text(title, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
 
     doc.autoTable({
-      startY: 30,
+      startY: 30, // Start table below the title
       head: [['DRV ID', 'Name', 'Email', 'Phone', 'Status']],
       body: drivers.map(driver => [
         driver.drv_id,
@@ -125,13 +128,37 @@ export default function DriversPage() {
         driver.phone || 'N/A',
         driver.status,
       ]),
-      theme: 'striped',
-      styles: { fillColor: [30, 41, 59] },
-      headStyles: { fillColor: [79, 70, 229] },
-      alternateRowStyles: { fillColor: [45, 55, 72] },
+      theme: 'grid', // For all borders
+      headStyles: {
+        fontStyle: 'bold',
+        fontSize: 12,
+        textColor: [0, 0, 0], // Black
+        fillColor: [255, 255, 255], // White background
+        lineWidth: 0.1,
+        lineColor: [0, 0, 0],
+      },
+      bodyStyles: {
+        fontSize: 10,
+        textColor: [0, 0, 0], // Black
+        lineWidth: 0.1,
+        lineColor: [0, 0, 0],
+        valign: 'middle',
+      },
+      margin: { top: 30, right: 10, bottom: 20, left: 10 },
+      didDrawPage: function (data) {
+        // Header
+        doc.setFontSize(10);
+        doc.setTextColor(0); // Black text
+        doc.text("SR Logistics Admin Panel", data.settings.margin.left, 10);
+
+        // Footer
+        doc.setFontSize(10);
+        doc.text(`Page ${data.pageNumber} of {total_pages}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 10, { align: 'right' });
+      }
     });
 
-    doc.save(`drivers_list.pdf`);
+    doc.putTotalPages("{total_pages}"); // Fill in total pages placeholder
+    doc.save(fileName);
     toast.success('Drivers list exported to PDF!');
   };
 
