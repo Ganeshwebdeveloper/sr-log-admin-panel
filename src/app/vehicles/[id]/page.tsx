@@ -26,7 +26,8 @@ type Trip = Database['public']['Tables']['trips']['Row'] & {
 
 export default function SingleVehiclePage() {
   const params = useParams<{ id: string }>();
-  const id = params.id; // Access id from params
+  // Add a null check for params
+  const id = params?.id; 
   const router = useRouter();
   const supabase = supabaseBrowser;
 
