@@ -92,6 +92,9 @@ importers:
       '@supabase/ssr':
         specifier: ^0.7.0
         version: 0.7.0(@supabase/supabase-js@2.57.2)
+      '@supabase/supabase-js':
+        specifier: ^2.57.2
+        version: 2.57.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

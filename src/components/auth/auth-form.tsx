@@ -74,14 +74,26 @@ export function AuthForm() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({ email, token: otp, type: 'email' });
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('OTP verified! You are now logged in.');
-      router.push('/home');
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email' as const, // Explicitly define 'email' as a literal type
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('OTP verified! You are now logged in.');
+        router.push('/home');
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Something went wrong during OTP verification.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
