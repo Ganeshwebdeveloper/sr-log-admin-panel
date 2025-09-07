@@ -158,8 +158,7 @@ export function AuthForm() {
             {loading ? 'Loading...' :
              mode === 'login' ? 'Login' :
              mode === 'signup' ? 'Sign Up' :
-             mode === 'otp' ? 'Verify OTP' :
-             'Send Magic Link'}
+              'Send Magic Link'}
           </Button>
         </form>
         <div className="mt-4 text-center text-sm text-gray-400">
