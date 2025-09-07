@@ -9,6 +9,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code');
+  const next = url.searchParams.get('next') ?? '/home';
+
+  if (!code) {
+    return NextResponse.redirect(new URL('/auth/error', request.url));
+  }
+
 type AuthMode = 'login' | 'signup' | 'magiclink';
 
 export function AuthForm() {
