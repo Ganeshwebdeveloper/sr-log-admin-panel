@@ -111,6 +111,27 @@ export interface Database {
           },
         ]
       }
+      settings: {
+        Row: {
+          created_at: string
+          diesel_price_per_litre: number
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          diesel_price_per_litre?: number
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          diesel_price_per_litre?: number
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trips: {
         Row: {
           avg_speed: number | null
@@ -189,7 +210,9 @@ export interface Database {
       vehicles: {
         Row: {
           company: string | null
+          condition: string | null
           created_at: string
+          mileage: number | null
           model: string | null
           reg_no: string
           status: Database["public"]["Enums"]["vehicle_status"]
@@ -197,7 +220,9 @@ export interface Database {
         }
         Insert: {
           company?: string | null
+          condition?: string | null
           created_at?: string
+          mileage?: number | null
           model?: string | null
           reg_no: string
           status?: Database["public"]["Enums"]["vehicle_status"]
@@ -205,7 +230,9 @@ export interface Database {
         }
         Update: {
           company?: string | null
+          condition?: string | null
           created_at?: string
+          mileage?: number | null
           model?: string | null
           reg_no?: string
           status?: Database["public"]["Enums"]["vehicle_status"]

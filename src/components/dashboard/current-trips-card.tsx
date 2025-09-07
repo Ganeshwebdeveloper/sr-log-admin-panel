@@ -89,9 +89,12 @@ export function CurrentTripsCard() {
                   <TableHead>From</TableHead>
                   <TableHead>To</TableHead>
                   <TableHead>Location</TableHead>
-                  <TableHead>Cost</TableHead>
                   <TableHead>Distance</TableHead>
                   <TableHead>Avg Speed</TableHead>
+                  <TableHead>Salary</TableHead>
+                  <TableHead>Fuel Cost</TableHead>
+                  <TableHead>Profit</TableHead>
+                  <TableHead>Total Cost</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -103,9 +106,12 @@ export function CurrentTripsCard() {
                     <TableCell className="text-gray-300">{trip.origin}</TableCell>
                     <TableCell className="text-gray-300">{trip.destination}</TableCell>
                     <TableCell className="text-warning-accent">{trip.current_location || 'N/A'}</TableCell>
+                    <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || 'N/A'} km</TableCell>
+                    <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || 'N/A'} km/h</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
                     <TableCell className="text-secondary-accent">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || '0.00'} km</TableCell>
-                    <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || '0.00'} km/h</TableCell>
                     <TableCell className={`font-semibold ${trip.status === 'started' ? 'text-primary-accent' : 'text-warning-accent'}`}>
                       {trip.status}
                     </TableCell>

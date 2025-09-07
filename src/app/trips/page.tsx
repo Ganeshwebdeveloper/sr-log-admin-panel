@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { PlusCircle, Edit, Trash2, ArrowUp, ArrowDown, Filter, FileText, FileSpreadsheet } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, ArrowUp, ArrowDown, Filter, FileText, FileSpreadsheet, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -167,6 +167,25 @@ export default function TripsPage() {
     return null;
   };
 
+  // Placeholder for refresh functions
+  const handleRefreshDistance = (tripId: string) => {
+    toast.info(`Refreshing distance for trip ${tripId}... (Backend integration needed)`);
+    // In a real application, this would trigger a backend call
+    // to update the distance for the specific trip.
+  };
+
+  const handleRefreshAvgSpeed = (tripId: string) => {
+    toast.info(`Refreshing average speed for trip ${tripId}... (Backend integration needed)`);
+    // In a real application, this would trigger a backend call
+    // to update the average speed for the specific trip.
+  };
+
+  const handleRefreshCurrentLocation = (tripId: string) => {
+    toast.info(`Refreshing current location for trip ${tripId}... (Backend integration needed)`);
+    // In a real application, this would trigger a backend call
+    // to update the current location for the specific trip.
+  };
+
   const exportToPdf = () => {
     const doc = new jsPDF('p', 'mm', 'a4'); // A4 portrait
     const title = "Trips Report";
@@ -177,37 +196,40 @@ export default function TripsPage() {
 
     doc.autoTable({
       startY: 30, // Start table below the title
-      head: [['From', 'To', 'Driver', 'Vehicle', 'Status', 'Start Time', 'End Time', 'Current Location', 'Distance (km)', 'Avg Speed (km/h)', 'Trip Cost (₹)']],
+      head: [['From', 'To', 'Driver', 'Vehicle', 'Status', 'Distance (km)', 'Avg Speed (km/h)', 'Current Location', 'Salary (₹)', 'Fuel Cost (₹)', 'Profit (₹)', 'Total Cost (₹)', 'Start Time', 'End Time']],
       body: trips.map(trip => [
         trip.origin,
         trip.destination,
         trip.drivers?.name || 'N/A',
         trip.vehicles?.reg_no || 'N/A',
         trip.status,
+        trip.distance?.toFixed(2) || 'N/A',
+        trip.avg_speed?.toFixed(2) || 'N/A',
+        trip.current_location || 'N/A',
+        `₹${trip.driver_salary?.toFixed(2) || '0.00'}`,
+        `₹${trip.fuel_cost?.toFixed(2) || '0.00'}`,
+        `₹${trip.profit?.toFixed(2) || '0.00'}`,
+        `₹${trip.total_cost?.toFixed(2) || '0.00'}`,
         trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
         trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : 'N/A',
-        trip.current_location || 'N/A',
-        trip.distance?.toFixed(2) || '0.00',
-        trip.avg_speed?.toFixed(2) || '0.00',
-        `₹${trip.total_cost?.toFixed(2) || '0.00'}`,
       ]),
       theme: 'grid', // For all borders
       headStyles: {
         fontStyle: 'bold',
-        fontSize: 12,
+        fontSize: 10, // Smaller font for more columns
         textColor: [0, 0, 0], // Black
         fillColor: [255, 255, 255], // White background
         lineWidth: 0.1,
         lineColor: [0, 0, 0],
       },
       bodyStyles: {
-        fontSize: 10,
+        fontSize: 8, // Smaller font for more columns
         textColor: [0, 0, 0], // Black
         lineWidth: 0.1,
         lineColor: [0, 0, 0],
         valign: 'middle',
       },
-      margin: { top: 30, right: 10, bottom: 20, left: 10 },
+      margin: { top: 30, right: 5, bottom: 20, left: 5 }, // Adjusted margins for more space
       didDrawPage: function (data) {
         // Header
         doc.setFontSize(10);
@@ -232,12 +254,15 @@ export default function TripsPage() {
       Driver: trip.drivers?.name || 'N/A',
       Vehicle: trip.vehicles?.reg_no || 'N/A',
       Status: trip.status,
+      'Distance (km)': trip.distance?.toFixed(2) || 'N/A',
+      'Avg Speed (km/h)': trip.avg_speed?.toFixed(2) || 'N/A',
+      'Current Location': trip.current_location || 'N/A',
+      'Salary (₹)': trip.driver_salary?.toFixed(2) || '0.00',
+      'Fuel Cost (₹)': trip.fuel_cost?.toFixed(2) || '0.00',
+      'Profit (₹)': trip.profit?.toFixed(2) || '0.00',
+      'Total Cost (₹)': trip.total_cost?.toFixed(2) || '0.00',
       'Start Time': trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
       'End Time': trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : 'N/A',
-      'Current Location': trip.current_location || 'N/A',
-      'Distance (km)': trip.distance?.toFixed(2) || '0.00',
-      'Avg Speed (km/h)': trip.avg_speed?.toFixed(2) || '0.00',
-      'Trip Cost (₹)': trip.total_cost?.toFixed(2) || '0.00',
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -313,9 +338,8 @@ export default function TripsPage() {
               <SelectValue placeholder="Filter by Driver" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border text-foreground">
-              <SelectItem value="all">All Drivers</SelectItem> {/* Changed value to 'all' */}
+              <SelectItem value="all">All Drivers</SelectItem>
               {drivers.map((driver) => (
-                // Ensure drv_id is not an empty string
                 driver.drv_id ? (
                   <SelectItem key={driver.drv_id} value={driver.drv_id}>
                     {driver.name}
@@ -330,9 +354,8 @@ export default function TripsPage() {
               <SelectValue placeholder="Filter by Vehicle" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border text-foreground">
-              <SelectItem value="all">All Vehicles</SelectItem> {/* Changed value to 'all' */}
+              <SelectItem value="all">All Vehicles</SelectItem>
               {vehicles.map((vehicle) => (
-                // Ensure reg_no is not an empty string
                 vehicle.reg_no ? (
                   <SelectItem key={vehicle.reg_no} value={vehicle.reg_no}>
                     {vehicle.company} {vehicle.model} ({vehicle.reg_no})
@@ -347,7 +370,7 @@ export default function TripsPage() {
               <SelectValue placeholder="Filter by Status" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border text-foreground">
-              <SelectItem value="all">All Statuses</SelectItem> {/* Changed value to 'all' */}
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="started">Started</SelectItem>
               <SelectItem value="finished">Finished</SelectItem>
@@ -385,21 +408,30 @@ export default function TripsPage() {
                     <TableHead onClick={() => handleSort('status')} className="cursor-pointer hover:text-primary-accent">
                       Status {getSortIcon('status')}
                     </TableHead>
+                    <TableHead onClick={() => handleSort('distance')} className="cursor-pointer hover:text-primary-accent">
+                      Distance (km) {getSortIcon('distance')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('avg_speed')} className="cursor-pointer hover:text-primary-accent">
+                      Avg Speed (km/h) {getSortIcon('avg_speed')}
+                    </TableHead>
+                    <TableHead>Current Location</TableHead>
+                    <TableHead onClick={() => handleSort('driver_salary')} className="cursor-pointer hover:text-primary-accent">
+                      Salary (₹) {getSortIcon('driver_salary')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('fuel_cost')} className="cursor-pointer hover:text-primary-accent">
+                      Fuel Cost (₹) {getSortIcon('fuel_cost')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('profit')} className="cursor-pointer hover:text-primary-accent">
+                      Profit (₹) {getSortIcon('profit')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('total_cost')} className="cursor-pointer hover:text-primary-accent">
+                      Total Cost (₹) {getSortIcon('total_cost')}
+                    </TableHead>
                     <TableHead onClick={() => handleSort('start_time')} className="cursor-pointer hover:text-primary-accent">
                       Start Time {getSortIcon('start_time')}
                     </TableHead>
                     <TableHead onClick={() => handleSort('end_time')} className="cursor-pointer hover:text-primary-accent">
                       End Time {getSortIcon('end_time')}
-                    </TableHead>
-                    <TableHead>Current Location</TableHead>
-                    <TableHead onClick={() => handleSort('distance')} className="cursor-pointer hover:text-primary-accent">
-                      Distance {getSortIcon('distance')}
-                    </TableHead>
-                    <TableHead onClick={() => handleSort('avg_speed')} className="cursor-pointer hover:text-primary-accent">
-                      Avg Speed {getSortIcon('avg_speed')}
-                    </TableHead>
-                    <TableHead onClick={() => handleSort('total_cost')} className="cursor-pointer hover:text-primary-accent">
-                      Trip Cost {getSortIcon('total_cost')}
                     </TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -427,12 +459,54 @@ export default function TripsPage() {
                           {trip.status}
                         </span>
                       </TableCell>
+                      <TableCell className="text-gray-300 flex items-center">
+                        {trip.distance?.toFixed(2) || 'N/A'}
+                        {trip.distance !== null && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRefreshDistance(trip.trip_id)}
+                            className="ml-1 h-6 w-6 text-gray-400 hover:bg-gray-700/50"
+                            title="Refresh Distance"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-300 flex items-center">
+                        {trip.avg_speed?.toFixed(2) || 'N/A'}
+                        {trip.avg_speed !== null && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRefreshAvgSpeed(trip.trip_id)}
+                            className="ml-1 h-6 w-6 text-gray-400 hover:bg-gray-700/50"
+                            title="Refresh Average Speed"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-warning-accent flex items-center">
+                        {trip.current_location || 'N/A'}
+                        {trip.current_location !== null && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRefreshCurrentLocation(trip.trip_id)}
+                            className="ml-1 h-6 w-6 text-gray-400 hover:bg-gray-700/50"
+                            title="Refresh Current Location"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell className="text-gray-300">{trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A'}</TableCell>
                       <TableCell className="text-gray-300">{trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : 'N/A'}</TableCell>
-                      <TableCell className="text-warning-accent">{trip.current_location || 'N/A'}</TableCell>
-                      <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || '0.00'} km</TableCell>
-                      <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || '0.00'} km/h</TableCell>
-                      <TableCell className="text-secondary-accent">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"

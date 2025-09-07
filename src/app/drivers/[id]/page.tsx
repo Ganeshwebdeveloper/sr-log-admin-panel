@@ -109,34 +109,37 @@ export default function SingleDriverPage() {
 
     doc.autoTable({
       startY: 30,
-      head: [['From', 'To', 'Vehicle', 'Distance (km)', 'Avg Speed (km/h)', 'Driver Salary (₹)', 'Status', 'Start Time']],
+      head: [['From', 'To', 'Vehicle', 'Distance (km)', 'Avg Speed (km/h)', 'Salary (₹)', 'Fuel Cost (₹)', 'Profit (₹)', 'Total Cost (₹)', 'Status', 'Start Time']],
       body: trips.map(trip => [
         trip.origin,
         trip.destination,
         trip.vehicles?.reg_no || 'N/A',
-        trip.distance?.toFixed(2) || '0.00',
-        trip.avg_speed?.toFixed(2) || '0.00',
+        trip.distance?.toFixed(2) || 'N/A',
+        trip.avg_speed?.toFixed(2) || 'N/A',
         `₹${trip.driver_salary?.toFixed(2) || '0.00'}`,
+        `₹${trip.fuel_cost?.toFixed(2) || '0.00'}`,
+        `₹${trip.profit?.toFixed(2) || '0.00'}`,
+        `₹${trip.total_cost?.toFixed(2) || '0.00'}`,
         trip.status,
         trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
       ]),
       theme: 'grid',
       headStyles: {
         fontStyle: 'bold',
-        fontSize: 12,
+        fontSize: 10, // Smaller font for more columns
         textColor: [0, 0, 0], // Black
         fillColor: [255, 255, 255], // White background
         lineWidth: 0.1,
         lineColor: [0, 0, 0],
       },
       bodyStyles: {
-        fontSize: 10,
+        fontSize: 8, // Smaller font for more columns
         textColor: [0, 0, 0], // Black
         lineWidth: 0.1,
         lineColor: [0, 0, 0],
         valign: 'middle',
       },
-      margin: { top: 30, right: 10, bottom: 20, left: 10 },
+      margin: { top: 30, right: 5, bottom: 20, left: 5 }, // Adjusted margins for more space
       didDrawPage: function (data) {
         // Header
         doc.setFontSize(10);
@@ -163,9 +166,12 @@ export default function SingleDriverPage() {
       From: trip.origin,
       To: trip.destination,
       Vehicle: trip.vehicles?.reg_no || 'N/A',
-      'Distance (km)': trip.distance?.toFixed(2) || '0.00',
-      'Avg Speed (km/h)': trip.avg_speed?.toFixed(2) || '0.00',
-      'Driver Salary (₹)': trip.driver_salary?.toFixed(2) || '0.00',
+      'Distance (km)': trip.distance?.toFixed(2) || 'N/A',
+      'Avg Speed (km/h)': trip.avg_speed?.toFixed(2) || 'N/A',
+      'Salary (₹)': trip.driver_salary?.toFixed(2) || '0.00',
+      'Fuel Cost (₹)': trip.fuel_cost?.toFixed(2) || '0.00',
+      'Profit (₹)': trip.profit?.toFixed(2) || '0.00',
+      'Total Cost (₹)': trip.total_cost?.toFixed(2) || '0.00',
       Status: trip.status,
       'Start Time': trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : 'N/A',
     }));
@@ -305,7 +311,10 @@ export default function SingleDriverPage() {
                     <TableHead>Vehicle</TableHead>
                     <TableHead>Distance</TableHead>
                     <TableHead>Avg Speed</TableHead>
-                    <TableHead>Driver Salary</TableHead>
+                    <TableHead>Salary</TableHead>
+                    <TableHead>Fuel Cost</TableHead>
+                    <TableHead>Profit</TableHead>
+                    <TableHead>Total Cost</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Start Time</TableHead>
                   </TableRow>
@@ -316,9 +325,12 @@ export default function SingleDriverPage() {
                       <TableCell className="text-gray-300">{trip.origin}</TableCell>
                       <TableCell className="text-gray-300">{trip.destination}</TableCell>
                       <TableCell className="text-gray-300">{trip.vehicles?.reg_no || 'N/A'}</TableCell>
-                      <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || '0.00'} km</TableCell>
-                      <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || '0.00'} km/h</TableCell>
+                      <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || 'N/A'} km</TableCell>
+                      <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || 'N/A'} km/h</TableCell>
                       <TableCell className="text-secondary-accent">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell className="text-secondary-accent">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-semibold ${

@@ -40,27 +40,14 @@ const formSchema = z.object({
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
   start_time: z.date({ required_error: 'Start time is required.' }),
-  end_time: z.date().optional(),
-  distance: z.preprocess(
-    (val) => (val === '' ? undefined : Number(val)),
-    z.number().min(0, { message: 'Distance must be a positive number.' }).optional()
-  ),
-  avg_speed: z.preprocess(
-    (val) => (val === '' ? undefined : Number(val)),
-    z.number().min(0, { message: 'Average speed must be a positive number.' }).optional()
-  ),
-  current_location: z.string().optional().or(z.literal('')),
+  // Removed: end_time, distance, avg_speed, current_location, fuel_cost, maintenance_cost
   driver_salary: z.preprocess(
     (val) => (val === '' ? undefined : Number(val)),
     z.number().min(0, { message: 'Driver salary must be a positive number.' }).optional()
   ),
-  fuel_cost: z.preprocess(
+  profit: z.preprocess(
     (val) => (val === '' ? undefined : Number(val)),
-    z.number().min(0, { message: 'Fuel cost must be a positive number.' }).optional()
-  ),
-  maintenance_cost: z.preprocess(
-    (val) => (val === '' ? undefined : Number(val)),
-    z.number().min(0, { message: 'Maintenance cost must be a positive number.' }).optional()
+    z.number().optional() // Profit can be negative
   ),
   status: z.enum(['pending', 'started', 'finished'], { message: 'Status is required.' }),
 });
@@ -87,13 +74,8 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
       origin: initialData?.origin || '',
       destination: initialData?.destination || '',
       start_time: initialData?.start_time ? new Date(initialData.start_time) : new Date(),
-      end_time: initialData?.end_time ? new Date(initialData.end_time) : undefined,
-      distance: initialData?.distance || undefined,
-      avg_speed: initialData?.avg_speed || undefined,
-      current_location: initialData?.current_location || '',
       driver_salary: initialData?.driver_salary || undefined,
-      fuel_cost: initialData?.fuel_cost || undefined,
-      maintenance_cost: initialData?.maintenance_cost || undefined,
+      profit: initialData?.profit || undefined,
       status: initialData?.status || 'pending',
     },
   });
@@ -131,13 +113,8 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
         origin: initialData.origin || '',
         destination: initialData.destination || '',
         start_time: initialData.start_time ? new Date(initialData.start_time) : new Date(),
-        end_time: initialData.end_time ? new Date(initialData.end_time) : undefined,
-        distance: initialData.distance || undefined,
-        avg_speed: initialData.avg_speed || undefined,
-        current_location: initialData.current_location || '',
         driver_salary: initialData.driver_salary || undefined,
-        fuel_cost: initialData.fuel_cost || undefined,
-        maintenance_cost: initialData.maintenance_cost || undefined,
+        profit: initialData.profit || undefined,
         status: initialData.status,
       });
     }
@@ -146,11 +123,11 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
   const onSubmit = async (values: AssignTripFormValues) => {
     try {
       const driverSalary = values.driver_salary || 0;
-      const fuelCost = values.fuel_cost || 0;
-      const maintenanceCost = values.maintenance_cost || 0;
+      const profit = values.profit || 0;
 
-      const totalCost = driverSalary + fuelCost + maintenanceCost;
-      const profit = (values.distance || 0) * 10 - totalCost; // Example profit calculation
+      // total_cost at creation will only include driver_salary and profit
+      // fuel_cost and maintenance_cost will be null initially
+      const totalCost = driverSalary + profit; // Assuming profit is part of the initial cost calculation for admin view
 
       const tripData = {
         drv_id: values.drv_id,
@@ -158,13 +135,13 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
         origin: values.origin,
         destination: values.destination,
         start_time: values.start_time.toISOString(),
-        end_time: values.end_time ? values.end_time.toISOString() : null,
-        distance: values.distance || null,
-        avg_speed: values.avg_speed || null,
-        current_location: values.current_location || null,
+        end_time: null, // Set to null at creation
+        distance: null, // Set to null at creation
+        avg_speed: null, // Set to null at creation
+        current_location: null, // Set to null at creation
         driver_salary: driverSalary,
-        fuel_cost: fuelCost,
-        maintenance_cost: maintenanceCost,
+        fuel_cost: null, // Set to null at creation
+        maintenance_cost: null, // Set to null at creation
         total_cost: totalCost,
         profit: profit,
         status: values.status,
@@ -174,7 +151,7 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
         // Update existing trip
         const { error } = await supabase
           .from('trips')
-          .update(tripData)
+          .update(tripData) // Only update the fields that are in the form
           .eq('trip_id', initialData.trip_id);
 
         if (error) throw error;
@@ -254,7 +231,7 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
           name="origin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Origin</FormLabel>
+              <FormLabel className="text-text-light">From</FormLabel>
               <FormControl>
                 <Input
                   placeholder="City A"
@@ -271,7 +248,7 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
           name="destination"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Destination</FormLabel>
+              <FormLabel className="text-text-light">To</FormLabel>
               <FormControl>
                 <Input
                   placeholder="City B"
@@ -332,114 +309,10 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
         />
         <FormField
           control={form.control}
-          name="end_time"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel className="text-text-light">End Time (Optional)</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-700/50 border-primary-accent/20 text-white hover:bg-gray-600/50",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4 text-primary-accent" />
-                      {field.value ? format(field.value, "PPP HH:mm") : <span>Pick a date and time</span>}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-card border-border text-foreground" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    initialFocus
-                  />
-                  <div className="p-3 border-t border-border">
-                    <Input
-                      type="time"
-                      value={field.value ? format(field.value, "HH:mm") : ''}
-                      onChange={(e) => {
-                        const [hours, minutes] = e.target.value.split(':').map(Number);
-                        const newDate = field.value ? new Date(field.value) : new Date();
-                        newDate.setHours(hours, minutes);
-                        field.onChange(newDate);
-                      }}
-                      className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="distance"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-text-light">Distance (km)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="100.5"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="avg_speed"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-text-light">Average Speed (km/h)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="60.0"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="current_location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-text-light">Current Location (Optional)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="En route to City B"
-                  {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
           name="driver_salary"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Driver Salary (₹)</FormLabel>
+              <FormLabel className="text-text-light">Salary (₹)</FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -456,30 +329,10 @@ export function AssignTripForm({ onSuccess, onClose, initialData }: AssignTripFo
         />
         <FormField
           control={form.control}
-          name="fuel_cost"
+          name="profit"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Fuel Cost (₹)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="2000.00"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="maintenance_cost"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-text-light">Maintenance Cost (₹)</FormLabel>
+              <FormLabel className="text-text-light">Profit (₹)</FormLabel>
               <FormControl>
                 <Input
                   type="number"
