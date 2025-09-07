@@ -9,12 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
-type AuthMode = 'login' | 'signup' | 'otp' | 'magiclink';
+type AuthMode = 'login' | 'signup' | 'magiclink'; // Removed 'otp'
 
 export function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
+  // const [otp, setOtp] = useState(''); // OTP state no longer needed
   const [mode, setMode] = useState<AuthMode>('login');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -58,43 +58,7 @@ export function AuthForm() {
     setLoading(false);
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('OTP sent! Check your email.');
-      setMode('otp');
-    }
-    setLoading(false);
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'email' as const, // Explicitly define 'email' as a literal type
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('OTP verified! You are now logged in.');
-        router.push('/home');
-      }
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || 'Something went wrong during OTP verification.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // handleSendOtp and handleVerifyOtp functions are removed
 
   return (
     <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-md border border-primary-accent/30 shadow-lg">
@@ -103,17 +67,16 @@ export function AuthForm() {
         <CardDescription className="text-gray-300">
           {mode === 'login' && 'Login to your account'}
           {mode === 'signup' && 'Create a new account'}
-          {mode === 'otp' && 'Verify your OTP'}
           {mode === 'magiclink' && 'Receive a magic link'}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={
           mode === 'login' ? handleLogin :
-          mode === 'signup' ? handleVerifyOtp :
-          handleSendMagicLink // Default for magiclink mode
+          mode === 'signup' ? handleSignUp :
+          handleSendMagicLink // Only remaining option for magiclink mode
         } className="grid gap-4">
-          {(mode === 'login' || mode === 'signup' || mode === 'magiclink' || mode === 'otp') && (
+          {(mode === 'login' || mode === 'signup' || mode === 'magiclink') && ( // Removed 'otp'
             <div className="grid gap-2">
               <Label htmlFor="email" className="text-secondary-accent">Email</Label>
               <Input
@@ -140,25 +103,12 @@ export function AuthForm() {
               />
             </div>
           )}
-          {mode === 'otp' && (
-            <div className="grid gap-2">
-              <Label htmlFor="otp" className="text-secondary-accent">OTP</Label>
-              <Input
-                id="otp"
-                type="text"
-                placeholder="123456"
-                required
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
-              />
-            </div>
-          )}
+          {/* OTP input field removed */}
           <Button type="submit" className="w-full bg-primary-accent hover:bg-primary-accent/80 text-white font-bold" disabled={loading}>
             {loading ? 'Loading...' :
              mode === 'login' ? 'Login' :
              mode === 'signup' ? 'Sign Up' :
-              'Send Magic Link'}
+             'Send Magic Link'}
           </Button>
         </form>
         <div className="mt-4 text-center text-sm text-gray-400">
@@ -172,10 +122,7 @@ export function AuthForm() {
               <Button variant="link" onClick={() => setMode('magiclink')} className="text-primary-accent hover:text-primary-accent/80 p-0 h-auto">
                 Login with Magic Link
               </Button>
-              <br />
-              <Button variant="link" onClick={() => setMode('otp')} className="text-warning-accent hover:text-warning-accent/80 p-0 h-auto">
-                Login with OTP
-              </Button>
+              {/* OTP login button removed */}
             </>
           )}
           {mode === 'signup' && (
@@ -186,7 +133,7 @@ export function AuthForm() {
               </Button>
             </>
           )}
-          {(mode === 'otp' || mode === 'magiclink') && (
+          {mode === 'magiclink' && ( // Adjusted condition
             <>
               Go back to{' '}
               <Button variant="link" onClick={() => setMode('login')} className="text-secondary-accent hover:text-secondary-accent/80 p-0 h-auto">
