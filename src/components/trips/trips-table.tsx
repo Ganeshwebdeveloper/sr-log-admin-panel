@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Edit, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Edit, Trash2, ArrowUp, ArrowDown, Lock } from 'lucide-react'; // Added Lock icon
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -103,16 +103,20 @@ export function TripsTable({
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.origin || '—'}</TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.destination || '—'}</TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] font-medium text-white whitespace-nowrap">
-                {trip.drivers?.name || '—'}
-                {(trip.drv_id && (trip.status === 'pending' || trip.status === 'started')) && (
-                  <span className="ml-2 px-2 py-1 text-xs rounded bg-red-100 text-red-600 font-medium">Locked</span>
-                )}
+                <div className="flex flex-col items-start">
+                  <span>{trip.drivers?.name || '—'}</span>
+                  {(trip.drv_id && (trip.status === 'pending' || trip.status === 'started')) && (
+                    <Lock className="h-3.5 w-3.5 text-gray-500 mt-1" />
+                  )}
+                </div>
               </TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">
-                {trip.vehicles?.reg_no || '—'}
-                {(trip.vehicle_reg_no && (trip.status === 'pending' || trip.status === 'started')) && (
-                  <span className="ml-2 px-2 py-1 text-xs rounded bg-red-100 text-red-600 font-medium">Locked</span>
-                )}
+                <div className="flex flex-col items-start">
+                  <span>{trip.vehicles?.reg_no || '—'}</span>
+                  {(trip.vehicle_reg_no && (trip.status === 'pending' || trip.status === 'started')) && (
+                    <Lock className="h-3.5 w-3.5 text-gray-500 mt-1" />
+                  )}
+                </div>
               </TableCell>
               <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] whitespace-nowrap">
                 <span
