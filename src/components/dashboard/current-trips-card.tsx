@@ -9,7 +9,6 @@ import { supabaseBrowser } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Database } from '@/types/supabase';
-import { format } from 'date-fns';
 
 type Trip = Database['public']['Tables']['trips']['Row'] & {
   drivers: { name: string } | null;
@@ -61,15 +60,15 @@ export function CurrentTripsCard() {
   }, [fetchTrips, supabase]);
 
   return (
-    <Card className="bg-card border border-gray-300 dark:border-gray-700 lg:col-span-2">
+    <Card className="glassmorphism-card border-primary-accent/30 lg:col-span-2">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-gray-800 dark:text-gray-200">Current Trips</CardTitle>
+        <CardTitle className="text-primary-accent">Current Trips</CardTitle>
         <Button
           variant="outline"
           size="sm"
           onClick={fetchTrips}
           disabled={loading}
-          className="bg-transparent border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
         >
           <RefreshCw className={loading ? "h-4 w-4 mr-2 animate-spin" : "h-4 w-4 mr-2"} />
           Refresh
@@ -77,52 +76,44 @@ export function CurrentTripsCard() {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="text-center text-gray-500 dark:text-gray-400">Loading trips...</div>
+          <div className="text-center text-gray-400">Loading trips...</div>
         ) : trips.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-gray-400">No current trips.</div>
+          <div className="text-center text-gray-400">No current trips.</div>
         ) : (
-          <ScrollArea className="h-[300px] w-full rounded-md border border-gray-300 dark:border-gray-700">
-            <Table className="min-w-full table-fixed border-collapse border border-gray-300 dark:border-gray-700">
+          <ScrollArea className="h-[300px] w-full rounded-md border border-primary-accent/20">
+            <Table>
               <TableHeader>
-                <TableRow className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Driver</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Vehicle</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">From</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">To</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Location</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Distance</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Avg Speed</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Salary</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Fuel Cost</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Profit</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Total Cost</TableHead>
-                  <TableHead className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center font-bold">Status</TableHead>
+                <TableRow className="bg-gray-800/50 text-secondary-accent">
+                  <TableHead>Driver</TableHead>
+                  <TableHead>Vehicle</TableHead>
+                  <TableHead>From</TableHead>
+                  <TableHead>To</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Distance</TableHead>
+                  <TableHead>Avg Speed</TableHead>
+                  <TableHead>Salary</TableHead>
+                  <TableHead>Fuel Cost</TableHead>
+                  <TableHead>Profit</TableHead>
+                  <TableHead>Total Cost</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {trips.map((trip) => (
-                  <TableRow key={trip.trip_id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-900 dark:text-white">{trip.drivers?.name || '—'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">{trip.vehicles?.reg_no || '—'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">{trip.origin || '—'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">{trip.destination || '—'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">{trip.current_location || '—'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">{trip.distance?.toFixed(2) || '—'} km</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">{trip.avg_speed?.toFixed(2) || '—'} km/h</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap text-gray-700 dark:text-gray-300">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          trip.status === 'started'
-                            ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                        }`}
-                      >
-                        {trip.status || '—'}
-                      </span>
+                  <TableRow key={trip.trip_id} className="hover:bg-gray-700/30 transition-colors">
+                    <TableCell className="font-medium text-white">{trip.drivers?.name || 'N/A'}</TableCell>
+                    <TableCell className="text-gray-300">{trip.vehicles?.reg_no || 'N/A'}</TableCell>
+                    <TableCell className="text-gray-300">{trip.origin}</TableCell>
+                    <TableCell className="text-gray-300">{trip.destination}</TableCell>
+                    <TableCell className="text-warning-accent">{trip.current_location || 'N/A'}</TableCell>
+                    <TableCell className="text-gray-300">{trip.distance?.toFixed(2) || 'N/A'} km</TableCell>
+                    <TableCell className="text-gray-300">{trip.avg_speed?.toFixed(2) || 'N/A'} km/h</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="text-secondary-accent">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className={`font-semibold ${trip.status === 'started' ? 'text-primary-accent' : 'text-warning-accent'}`}>
+                      {trip.status}
                     </TableCell>
                   </TableRow>
                 ))}

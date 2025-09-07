@@ -17,7 +17,7 @@ export function FixedChatButton() {
         <Button
           variant="default"
           size="icon"
-          className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg bg-gray-800 hover:bg-gray-700 text-white dark:bg-gray-200 dark:hover:bg-gray-300 dark:text-gray-900 z-50"
+          className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg bg-primary-accent hover:bg-primary-accent/90 text-white z-50"
           aria-label="Open Chat"
         >
           <MessageSquare className="h-6 w-6" />
@@ -28,7 +28,7 @@ export function FixedChatButton() {
         className={isMobile ? "h-[80vh] max-h-[80vh] w-full" : "w-full sm:max-w-md flex flex-col"} // Adjust size for mobile/desktop
       >
         <SheetHeader className="text-left px-4 pt-4">
-          <SheetTitle className="text-gray-800 dark:text-gray-200">Chat with Drivers</SheetTitle>
+          <SheetTitle className="text-primary-accent">Chat with Drivers</SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-hidden">
           <ChatBox />

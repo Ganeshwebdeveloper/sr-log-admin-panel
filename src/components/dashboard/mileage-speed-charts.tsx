@@ -71,15 +71,15 @@ export function MileageSpeedCharts() {
   }, [fetchTripData, supabase]);
 
   return (
-    <Card className="bg-card border border-gray-300 dark:border-gray-700 lg:col-span-2">
+    <Card className="glassmorphism-card border-primary-accent/30 lg:col-span-2">
       <CardHeader>
-        <CardTitle className="text-gray-800 dark:text-gray-200">Mileage & Speeding Graphs (Current Trips)</CardTitle>
+        <CardTitle className="text-primary-accent">Mileage & Speeding Graphs (Current Trips)</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 h-[300px] flex items-center justify-center">Loading charts...</div>
+          <div className="text-center text-gray-400 h-[300px] flex items-center justify-center">Loading charts...</div>
         ) : tripData.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 h-[300px] flex items-center justify-center">No active trip data for charts.</div>
+          <div className="text-center text-gray-400 h-[300px] flex items-center justify-center">No active trip data for charts.</div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart
@@ -91,17 +91,17 @@ export function MileageSpeedCharts() {
                 bottom: 5,
               }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(156, 163, 175, 0.2)" /> {/* Gray-400 with transparency */}
-              <XAxis dataKey="name" stroke="#6B7280" /> {/* Gray-500 */}
-              <YAxis yAxisId="left" stroke="#4B5563" label={{ value: 'Distance (km)', angle: -90, position: 'insideLeft', fill: '#4B5563' }} /> {/* Gray-600 */}
-              <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" label={{ value: 'Avg Speed (km/h)', angle: 90, position: 'insideRight', fill: '#9CA3AF' }} /> {/* Gray-400 */}
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(79, 70, 229, 0.2)" /> {/* Using primary-accent with transparency */}
+              <XAxis dataKey="name" stroke="#4F46E5" /> {/* primary-accent */}
+              <YAxis yAxisId="left" stroke="#10B981" label={{ value: 'Distance (km)', angle: -90, position: 'insideLeft', fill: '#10B981' }} /> {/* secondary-accent */}
+              <YAxis yAxisId="right" orientation="right" stroke="#F59E0B" label={{ value: 'Avg Speed (km/h)', angle: 90, position: 'insideRight', fill: '#F59E0B' }} /> {/* warning-accent */}
               <Tooltip
-                contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.8)', border: '1px solid #4B5563', borderRadius: '4px' }}
+                contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.8)', border: '1px solid #4F46E5', borderRadius: '4px' }}
                 itemStyle={{ color: '#fff' }}
               />
               <Legend />
-              <Line yAxisId="left" type="monotone" dataKey="distance" stroke="#4B5563" activeDot={{ r: 8 }} name="Distance (km)" /> {/* Gray-600 */}
-              <Line yAxisId="right" type="monotone" dataKey="avg_speed" stroke="#9CA3AF" name="Avg Speed (km/h)" /> {/* Gray-400 */}
+              <Line yAxisId="left" type="monotone" dataKey="distance" stroke="#10B981" activeDot={{ r: 8 }} name="Distance (km)" /> {/* secondary-accent */}
+              <Line yAxisId="right" type="monotone" dataKey="avg_speed" stroke="#F59E0B" name="Avg Speed (km/h)" /> {/* warning-accent */}
             </LineChart>
           </ResponsiveContainer>
         )}
