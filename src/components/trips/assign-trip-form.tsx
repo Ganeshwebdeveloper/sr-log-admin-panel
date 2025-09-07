@@ -43,11 +43,11 @@ const formSchema = z.object({
   driver_salary: z.preprocess(
     (val) => (val === '' ? undefined : Number(val)),
     z.number().min(0, { message: 'Driver salary must be a positive number.' }).optional()
-  ),
+  ).optional(), // Make the entire field optional after preprocess
   profit: z.preprocess(
     (val) => (val === '' ? undefined : Number(val)),
     z.number().optional() // Profit can be negative
-  ),
+  ).optional(), // Make the entire field optional after preprocess
   status: z.enum(['pending', 'started', 'finished'], { message: 'Status is required.' }),
 });
 

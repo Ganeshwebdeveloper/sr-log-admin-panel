@@ -14,7 +14,7 @@ type Trip = Database['public']['Tables']['trips']['Row'] & {
 };
 
 type SortColumn = keyof Trip | 'driver_name' | 'vehicle_info';
-type SortDirection = 'asc' | 'desc';
+type SortDirection = 'asc' | 'desc' | null; // Updated to include null
 
 interface TripsTableProps {
   trips: Trip[];
@@ -35,9 +35,8 @@ export function TripsTable({
   sortColumn,
   sortDirection,
   handleSort,
-  getSortIcon,
-  handleEditTrip,
   handleDeleteTrip,
+  handleEditTrip,
   lockedDriverIds,
   lockedVehicleRegNos,
 }: TripsTableProps) {
@@ -58,38 +57,38 @@ export function TripsTable({
             <TableHead className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">From</TableHead>
             <TableHead className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">To</TableHead>
             <TableHead onClick={() => handleSort('driver_name')} className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Driver {getSortIcon('driver_name')}
+              Driver {sortColumn === 'driver_name' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('vehicle_info')} className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Vehicle {getSortIcon('vehicle_info')}
+              Vehicle {sortColumn === 'vehicle_info' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('status')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Status {getSortIcon('status')}
+              Status {sortColumn === 'status' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('start_time')} className="w-[10%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Start Time {getSortIcon('start_time')}
+              Start Time {sortColumn === 'start_time' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('end_time')} className="w-[10%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              End Time {getSortIcon('end_time')}
+              End Time {sortColumn === 'end_time' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('distance')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Distance (km) {getSortIcon('distance')}
+              Distance (km) {sortColumn === 'distance' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('avg_speed')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Avg Speed (km/h) {getSortIcon('avg_speed')}
+              Avg Speed (km/h) {sortColumn === 'avg_speed' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">Current Location</TableHead>
             <TableHead onClick={() => handleSort('driver_salary')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Salary (₹) {getSortIcon('driver_salary')}
+              Salary (₹) {sortColumn === 'driver_salary' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('fuel_cost')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Fuel Cost (₹) {getSortIcon('fuel_cost')}
+              Fuel Cost (₹) {sortColumn === 'fuel_cost' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('profit')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Profit (₹) {getSortIcon('profit')}
+              Profit (₹) {sortColumn === 'profit' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead onClick={() => handleSort('total_cost')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
-              Total Cost (₹) {getSortIcon('total_cost')}
+              Total Cost (₹) {sortColumn === 'total_cost' && (sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : null)}
             </TableHead>
             <TableHead className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">Actions</TableHead>
           </TableRow>

@@ -1,4 +1,4 @@
-import { createMiddlewareClient } from '@supabase/supabase-js';
+import { createMiddlewareClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { Database } from '@/types/supabase';

@@ -61,9 +61,9 @@ export function TripsActions({
     const fileName = `trips_report.pdf`;
 
     doc.setFontSize(16);
-    doc.text(title, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
+    doc.text(title, (doc as any).internal.pageSize.getWidth() / 2, 20, { align: 'center' });
 
-    doc.autoTable({
+    (doc as any).autoTable({
       startY: 30, // Start table below the title
       head: [['From', 'To', 'Driver', 'Vehicle', 'Status', 'Start Time', 'End Time', 'Distance (km)', 'Avg Speed (km/h)', 'Current Location', 'Salary (₹)', 'Fuel Cost (₹)', 'Profit (₹)', 'Total Cost (₹)']],
       body: trips.map(trip => [
@@ -108,7 +108,7 @@ export function TripsActions({
         13: { halign: 'right' }, // Total Cost
       },
       margin: { top: 30, right: 5, bottom: 20, left: 5 }, // Adjusted margins for more space
-      didDrawPage: function (data) {
+      didDrawPage: function (data: any) { // Explicitly type data as any
         // Header
         doc.setFontSize(10);
         doc.setTextColor(0); // Black text
@@ -116,11 +116,11 @@ export function TripsActions({
 
         // Footer
         doc.setFontSize(10);
-        doc.text(`Page ${data.pageNumber} of {total_pages}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 10, { align: 'right' });
+        doc.text(`Page ${data.pageNumber} of {total_pages}`, (doc as any).internal.pageSize.width - data.settings.margin.right, (doc as any).internal.pageSize.height - 10, { align: 'right' });
       }
     });
 
-    doc.putTotalPages("{total_pages}"); // Fill in total pages placeholder
+    (doc as any).putTotalPages("{total_pages}"); // Fill in total pages placeholder
     doc.save(fileName);
     toast.success('Trips list exported to PDF!');
   };

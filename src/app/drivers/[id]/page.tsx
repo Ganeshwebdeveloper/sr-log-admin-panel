@@ -25,7 +25,8 @@ type Trip = Database['public']['Tables']['trips']['Row'] & {
 };
 
 export default function SingleDriverPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const id = params.id; // Access id from params
   const router = useRouter();
   const supabase = supabaseBrowser;
 
@@ -34,6 +35,15 @@ export default function SingleDriverPage() {
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [totalMonthlySalary, setTotalMonthlySalary] = useState<number>(0);
+
+  // Handle case where id might be undefined (e.g., during initial render or if route is optional)
+  if (!id) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-950 text-primary-accent text-2xl">
+        Invalid Driver ID.
+      </div>
+    );
+  }
 
   const fetchDriverDetails = useCallback(async () => {
     setLoading(true);
@@ -105,9 +115,9 @@ export default function SingleDriverPage() {
     const fileName = `driver_${driver?.drv_id}_trips_${format(selectedMonth, "MMM_yyyy")}.pdf`;
 
     doc.setFontSize(16);
-    doc.text(title, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
+    doc.text(title, (doc as any).internal.pageSize.getWidth() / 2, 20, { align: 'center' });
 
-    doc.autoTable({
+    (doc as any).autoTable({
       startY: 30,
       head: [['From', 'To', 'Vehicle', 'Distance (km)', 'Avg Speed (km/h)', 'Salary (₹)', 'Fuel Cost (₹)', 'Profit (₹)', 'Total Cost (₹)', 'Status', 'Start Time']],
       body: trips.map(trip => [
@@ -140,7 +150,7 @@ export default function SingleDriverPage() {
         valign: 'middle',
       },
       margin: { top: 30, right: 5, bottom: 20, left: 5 }, // Adjusted margins for more space
-      didDrawPage: function (data) {
+      didDrawPage: function (data: any) { // Explicitly type data as any
         // Header
         doc.setFontSize(10);
         doc.setTextColor(0); // Black text
@@ -148,7 +158,7 @@ export default function SingleDriverPage() {
 
         // Footer
         doc.setFontSize(10);
-        doc.text(`Page ${data.pageNumber} of {total_pages}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 10, { align: 'right' });
+        doc.text(`Page ${data.pageNumber} of {total_pages}`, (doc as any).internal.pageSize.width - data.settings.margin.right, (doc as any).internal.pageSize.height - 10, { align: 'right' });
       }
     });
 
@@ -156,7 +166,7 @@ export default function SingleDriverPage() {
     doc.setTextColor(0); // Black text for total salary
     doc.text(`Total Salary for ${format(selectedMonth, "MMM yyyy")}: ₹${totalMonthlySalary.toFixed(2)}`, 14, (doc as any).autoTable.previous.finalY + 10);
 
-    doc.putTotalPages("{total_pages}");
+    (doc as any).putTotalPages("{total_pages}");
     doc.save(fileName);
     toast.success('Trip history exported to PDF!');
   };

@@ -57,7 +57,7 @@ export function useTripsData() {
         query = query.eq('vehicle_reg_no', filterVehicle);
       }
       if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus);
+        query = query.eq('status', filterStatus as Database['public']['Enums']['trip_status']); // Cast filterStatus
       }
 
       // Apply date range filter
@@ -114,15 +114,17 @@ export function useTripsData() {
 
   const fetchFilterOptions = useCallback(async () => {
     try {
+      // Fetch all columns for drivers to match the Driver type
       const { data: driversData, error: driversError } = await supabase
         .from('drivers')
-        .select('drv_id, name');
+        .select('*');
       if (driversError) throw driversError;
       setAllDrivers(driversData);
 
+      // Fetch all columns for vehicles to match the Vehicle type
       const { data: vehiclesData, error: vehiclesError } = await supabase
         .from('vehicles')
-        .select('reg_no, company, model');
+        .select('*');
       if (vehiclesError) throw vehiclesError;
       setAllVehicles(vehiclesData);
 
