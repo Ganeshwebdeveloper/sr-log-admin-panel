@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Edit, Trash2, ArrowUp, ArrowDown } from 'lucide-react'; // Removed RefreshCw
+import { Edit, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -51,43 +51,43 @@ export function TripsTable({
       <Table className="min-w-full table-fixed border-collapse border border-gray-300 rounded-lg overflow-hidden shadow-sm">
         <TableHeader className="bg-gray-800/50 text-secondary-accent">
           <TableRow>
-            <TableHead className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold">From</TableHead>
-            <TableHead className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold">To</TableHead>
-            <TableHead onClick={() => handleSort('driver_name')} className="w-[8%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">From</TableHead>
+            <TableHead className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">To</TableHead>
+            <TableHead onClick={() => handleSort('driver_name')} className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Driver {getSortIcon('driver_name')}
             </TableHead>
-            <TableHead onClick={() => handleSort('vehicle_info')} className="w-[8%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('vehicle_info')} className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Vehicle {getSortIcon('vehicle_info')}
             </TableHead>
-            <TableHead onClick={() => handleSort('status')} className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('status')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Status {getSortIcon('status')}
             </TableHead>
-            <TableHead onClick={() => handleSort('start_time')} className="w-[10%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('start_time')} className="w-[10%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Start Time {getSortIcon('start_time')}
             </TableHead>
-            <TableHead onClick={() => handleSort('end_time')} className="w-[10%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('end_time')} className="w-[10%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               End Time {getSortIcon('end_time')}
             </TableHead>
-            <TableHead onClick={() => handleSort('distance')} className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('distance')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Distance (km) {getSortIcon('distance')}
             </TableHead>
-            <TableHead onClick={() => handleSort('avg_speed')} className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('avg_speed')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Avg Speed (km/h) {getSortIcon('avg_speed')}
             </TableHead>
-            <TableHead className="w-[8%] border border-gray-300 px-4 py-2 text-center font-bold">Current Location</TableHead>
-            <TableHead onClick={() => handleSort('driver_salary')} className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">Current Location</TableHead>
+            <TableHead onClick={() => handleSort('driver_salary')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Salary (₹) {getSortIcon('driver_salary')}
             </TableHead>
-            <TableHead onClick={() => handleSort('fuel_cost')} className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('fuel_cost')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Fuel Cost (₹) {getSortIcon('fuel_cost')}
             </TableHead>
-            <TableHead onClick={() => handleSort('profit')} className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('profit')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Profit (₹) {getSortIcon('profit')}
             </TableHead>
-            <TableHead onClick={() => handleSort('total_cost')} className="w-[6%] border border-gray-300 px-4 py-2 text-center font-bold cursor-pointer hover:text-primary-accent">
+            <TableHead onClick={() => handleSort('total_cost')} className="w-[6%] border border-gray-300 px-3 py-2 text-left font-bold text-sm cursor-pointer hover:text-primary-accent">
               Total Cost (₹) {getSortIcon('total_cost')}
             </TableHead>
-            <TableHead className="w-[8%] border border-gray-300 px-4 py-2 text-center font-bold">Actions</TableHead>
+            <TableHead className="w-[8%] border border-gray-300 px-3 py-2 text-left font-bold text-sm">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -96,11 +96,11 @@ export function TripsTable({
               key={trip.trip_id}
               className="hover:bg-gray-700/30 transition-colors"
             >
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-gray-300 whitespace-nowrap">{trip.origin || '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-gray-300 whitespace-nowrap">{trip.destination || '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center font-medium text-white whitespace-nowrap">{trip.drivers?.name || '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-gray-300 whitespace-nowrap">{trip.vehicles?.reg_no || '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center whitespace-nowrap">
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.origin || '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.destination || '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] font-medium text-white whitespace-nowrap">{trip.drivers?.name || '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.vehicles?.reg_no || '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] whitespace-nowrap">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-semibold ${
                     trip.status === 'started'
@@ -113,22 +113,22 @@ export function TripsTable({
                   {trip.status || '—'}
                 </span>
               </TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-gray-300 whitespace-nowrap">{trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-gray-300 whitespace-nowrap">{trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-gray-300 whitespace-nowrap">
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.start_time ? format(new Date(trip.start_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">{trip.end_time ? format(new Date(trip.end_time), 'MMM dd, yyyy HH:mm') : '—'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">
                 {trip.distance?.toFixed(2) || '—'}
               </TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-gray-300 whitespace-nowrap">
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-gray-300 whitespace-nowrap">
                 {trip.avg_speed?.toFixed(2) || '—'}
               </TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-warning-accent whitespace-nowrap">
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-warning-accent whitespace-nowrap">
                 {trip.current_location || '—'}
               </TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-secondary-accent whitespace-nowrap">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-secondary-accent whitespace-nowrap">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-secondary-accent whitespace-nowrap">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center text-secondary-accent whitespace-nowrap">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
-              <TableCell className="border border-gray-300 px-4 py-2 text-center whitespace-nowrap">
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-secondary-accent whitespace-nowrap">₹{trip.driver_salary?.toFixed(2) || '0.00'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-secondary-accent whitespace-nowrap">₹{trip.fuel_cost?.toFixed(2) || '0.00'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-secondary-accent whitespace-nowrap">₹{trip.profit?.toFixed(2) || '0.00'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] text-secondary-accent whitespace-nowrap">₹{trip.total_cost?.toFixed(2) || '0.00'}</TableCell>
+              <TableCell className="border border-gray-300 px-3 py-2 text-left text-[13px] whitespace-nowrap">
                 <Button
                   variant="ghost"
                   size="icon"
