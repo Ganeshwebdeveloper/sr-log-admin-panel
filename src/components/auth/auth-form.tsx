@@ -1,5 +1,5 @@
 "use client";
-import { NextResponse } from 'next/server';
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase';
@@ -8,15 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  const next = url.searchParams.get('next') ?? '/home';
-
-  if (!code) {
-    return NextResponse.redirect(new URL('/auth/error', request.url));
-  }
 
 type AuthMode = 'login' | 'signup' | 'magiclink';
 
@@ -54,27 +45,17 @@ export function AuthForm() {
     setLoading(false);
   };
 
-const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-  if (error) {
-    console.error('Auth error:', error.message);
-    return NextResponse.redirect(new URL('/auth/error', request.url));
-  }
-
-  return NextResponse.redirect(new URL(next, request.url));
-}
-
-  // const handleSendMagicLink = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } });
-  //   if (error) {
-  //     toast.error(error.message);
-  //   } else {
-  //     toast.success('Magic link sent! Check your email.');
-  //   }
-  //   setLoading(false);
-  // };
+  const handleSendMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Magic link sent! Check your email.');
+    }
+    setLoading(false);
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-md border border-primary-accent/30 shadow-lg">
