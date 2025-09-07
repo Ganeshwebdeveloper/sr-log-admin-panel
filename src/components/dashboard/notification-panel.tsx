@@ -51,27 +51,27 @@ export function NotificationPanel() {
   }, [fetchNotifications, supabase]);
 
   return (
-    <Card className="glassmorphism-card border-primary-accent/30">
+    <Card className="bg-card border border-gray-300 dark:border-gray-700">
       <CardHeader>
-        <CardTitle className="text-primary-accent flex items-center gap-2">
+        <CardTitle className="text-gray-800 dark:text-gray-200 flex items-center gap-2">
           <Bell className="h-5 w-5" /> Notification Panel
         </CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="text-center text-gray-400">Loading notifications...</div>
+          <div className="text-center text-gray-500 dark:text-gray-400">Loading notifications...</div>
         ) : notifications.length === 0 ? (
-          <div className="text-center text-gray-400">No new notifications.</div>
+          <div className="text-center text-gray-500 dark:text-gray-400">No new notifications.</div>
         ) : (
-          <ScrollArea className="h-[300px] w-full rounded-md border border-primary-accent/20 p-2">
+          <ScrollArea className="h-[300px] w-full rounded-md border border-gray-300 dark:border-gray-700 p-2">
             <div className="space-y-3">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className="p-3 rounded-md bg-gray-800/50 border border-primary-accent/10 text-sm"
+                  className="p-3 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm"
                 >
-                  <p className="font-medium text-white">{notification.message}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="font-medium text-gray-900 dark:text-white">{notification.message}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {new Date(notification.created_at).toLocaleString()}
                     {notification.drv_id && ` - Driver: ${notification.drv_id}`}
                     {notification.vehicle_reg_no && ` - Vehicle: ${notification.vehicle_reg_no}`}
@@ -81,7 +81,7 @@ export function NotificationPanel() {
             </div>
           </ScrollArea>
         )}
-        <p className="text-xs text-gray-500 mt-4">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
           Notifications older than 2 days are automatically cleaned up by a database function.
         </p>
       </CardContent>

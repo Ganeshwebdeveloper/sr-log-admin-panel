@@ -123,13 +123,13 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
           name="drv_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Driver ID</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Driver ID</FormLabel>
               <FormControl>
                 <Input
                   placeholder="DRV001"
                   {...field}
                   disabled={!!initialData} // Disable editing DRV_ID for existing drivers
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -141,12 +141,12 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Name</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Name</FormLabel>
               <FormControl>
                 <Input
                   placeholder="John Doe"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -158,13 +158,13 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Email</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Email</FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   placeholder="john.doe@example.com"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -176,12 +176,12 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Phone</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Phone</FormLabel>
               <FormControl>
                 <Input
                   placeholder="+91 9876543210"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -193,13 +193,13 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Password</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"
                   placeholder="********"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -211,10 +211,10 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Status</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Status</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
+                  <SelectTrigger className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                 </FormControl>
@@ -232,12 +232,12 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
           name="photo_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Photo URL</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Photo URL</FormLabel>
               <FormControl>
                 <Input
                   placeholder="https://example.com/photo.jpg"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -246,7 +246,7 @@ export function AddDriverForm({ onSuccess, onClose, initialData }: AddDriverForm
         />
         <Button
           type="submit"
-          className="w-full bg-primary-accent hover:bg-primary-accent/80 text-white font-bold"
+          className="w-full bg-gray-800 hover:bg-gray-700 text-white dark:bg-gray-200 dark:hover:bg-gray-300 dark:text-gray-900 font-bold"
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting ? 'Saving...' : initialData ? 'Update Driver' : 'Add Driver'}

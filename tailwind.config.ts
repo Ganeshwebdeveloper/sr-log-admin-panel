@@ -50,22 +50,6 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			},
-  			sidebar: {
-  				DEFAULT: 'hsl(var(--sidebar-background))',
-  				foreground: 'hsl(var(--sidebar-foreground))',
-  				primary: 'hsl(var(--sidebar-primary))',
-  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-  				accent: 'hsl(var(--sidebar-accent))',
-  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-  				border: 'hsl(var(--sidebar-border))',
-  				ring: 'hsl(var(--sidebar-ring))'
-  			},
-            // New professional dark theme colors
-            'primary-accent': '#4F46E5', // Indigo-600
-            'secondary-accent': '#10B981', // Emerald-500
-            'warning-accent': '#F59E0B', // Amber-500
-            'text-light': '#E2E8F0', // Slate-200
-            'text-dark': '#94A3B8', // Slate-400
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

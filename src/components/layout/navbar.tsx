@@ -43,7 +43,7 @@ export function Navbar() {
           <Button
             variant="outline"
             size="icon"
-            className="shrink-0 md:hidden bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
+            className="shrink-0 md:hidden bg-transparent border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
@@ -53,23 +53,23 @@ export function Navbar() {
           <Sidebar />
         </SheetContent>
       </Sheet>
-      <Link href="/home" className="flex items-center gap-2 text-lg font-semibold md:text-base text-secondary-accent hover:text-secondary-accent/80">
+      <Link href="/home" className="flex items-center gap-2 text-lg font-semibold md:text-base text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400">
         SR Logistics Admin
       </Link>
       <div className="flex w-full items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
         <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="icon" className="rounded-full bg-gray-700/50 border-primary-accent/20 text-primary-accent hover:bg-gray-600/50">
+            <Button variant="secondary" size="icon" className="rounded-full bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600">
               <Avatar>
                 <AvatarImage src={user?.user_metadata?.avatar_url || "https://github.com/shadcn.png"} alt="User Avatar" />
-                <AvatarFallback className="bg-primary-accent/20 text-primary-accent">{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                <AvatarFallback className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200">{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-card border-border text-foreground">
-            <DropdownMenuLabel className="text-secondary-accent">{user?.email || "My Account"}</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-gray-800 dark:text-gray-200">{user?.email || "My Account"}</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-border" />
             <DropdownMenuItem className="hover:bg-accent hover:text-accent-foreground cursor-pointer">
               <User className="mr-2 h-4 w-4" /> Profile

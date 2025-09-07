@@ -219,17 +219,17 @@ export function ChatBox() {
   };
 
   return (
-    <Card className="glassmorphism-card border-primary-accent/30 lg:col-span-1 flex flex-col">
+    <Card className="bg-card border border-gray-300 dark:border-gray-700 lg:col-span-1 flex flex-col">
       <CardHeader>
-        <CardTitle className="text-primary-accent">Voice/Chat Box</CardTitle>
+        <CardTitle className="text-gray-800 dark:text-gray-200">Voice/Chat Box</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 p-4 pt-0">
-        <ScrollArea className="flex-1 h-[250px] w-full rounded-md border border-primary-accent/20 p-2 mb-4">
+        <ScrollArea className="flex-1 h-[250px] w-full rounded-md border border-gray-300 dark:border-gray-700 p-2 mb-4">
           <div className="space-y-3">
             {loading ? (
-              <div className="text-center text-gray-400">Loading messages...</div>
+              <div className="text-center text-gray-500 dark:text-gray-400">Loading messages...</div>
             ) : messages.length === 0 ? (
-              <div className="text-center text-gray-400">No messages yet.</div>
+              <div className="text-center text-gray-500 dark:text-gray-400">No messages yet.</div>
             ) : (
               messages.map((msg) => (
                 <div
@@ -240,8 +240,8 @@ export function ChatBox() {
                     className={
                       `max-w-[70%] p-3 rounded-lg text-sm ` +
                       (msg.sender === (user?.id || 'admin')
-                        ? 'bg-primary-accent/30 text-white border border-primary-accent/50' // Admin message style
-                        : 'bg-gray-700/50 text-gray-200 border border-gray-600/50') // Driver message style
+                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600' // Admin message style
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700') // Driver message style
                     }
                   >
                     <p className="font-semibold text-xs mb-1">
@@ -254,7 +254,7 @@ export function ChatBox() {
                     {msg.type === 'voice' && msg.file_url && (
                       <audio controls src={msg.file_url} className="w-full"></audio>
                     )}
-                    <p className="text-xs text-gray-400 mt-1 text-right">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
                       {new Date(msg.created_at!).toLocaleTimeString()}
                     </p>
                   </div>
@@ -270,7 +270,7 @@ export function ChatBox() {
             placeholder="Type your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+            className="flex-1 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
             disabled={loading}
           />
           <input
@@ -284,7 +284,7 @@ export function ChatBox() {
             variant="outline"
             size="icon"
             onClick={() => triggerFileInput('image')}
-            className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
+            className="bg-transparent border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             disabled={loading}
           >
             <Image className="h-4 w-4" />
@@ -294,14 +294,14 @@ export function ChatBox() {
             variant="outline"
             size="icon"
             onClick={() => triggerFileInput('voice')}
-            className="bg-transparent border-primary-accent/30 text-primary-accent hover:bg-primary-accent/10"
+            className="bg-transparent border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             disabled={loading}
           >
             <Mic className="h-4 w-4" />
           </Button>
           <Button
             type="submit"
-            className="bg-primary-accent hover:bg-primary-accent/80 text-white font-bold"
+            className="bg-gray-800 hover:bg-gray-700 text-white dark:bg-gray-200 dark:hover:bg-gray-300 dark:text-gray-900 font-bold"
             disabled={loading || !newMessage.trim()}
           >
             <Send className="h-4 w-4" />

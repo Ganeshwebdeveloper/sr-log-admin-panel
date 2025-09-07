@@ -9,7 +9,7 @@ import { MileageSpeedCharts } from '@/components/dashboard/mileage-speed-charts'
 export default function HomePage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold text-primary-accent">Dashboard Overview</h1>
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Dashboard Overview</h1>
 
       {/* Stats Cards */}
       <StatsWidgets />

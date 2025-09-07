@@ -56,14 +56,14 @@ export function StatsWidgets() {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="glassmorphism-card border-primary-accent/30 animate-pulse">
+          <Card key={i} className="bg-card border border-gray-300 dark:border-gray-700 animate-pulse">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 w-24 bg-gray-700 rounded"></div>
-              <div className="h-4 w-4 bg-gray-700 rounded-full"></div>
+              <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
+              <div className="h-4 w-4 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
             </CardHeader>
             <CardContent>
-              <div className="h-6 w-16 bg-gray-700 rounded mb-1"></div>
-              <div className="h-3 w-20 bg-gray-700 rounded"></div>
+              <div className="h-6 w-16 bg-gray-300 dark:bg-gray-700 rounded mb-1"></div>
+              <div className="h-3 w-20 bg-gray-300 dark:bg-gray-700 rounded"></div>
             </CardContent>
           </Card>
         ))}
@@ -74,48 +74,48 @@ export function StatsWidgets() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Link href="/drivers" className="block">
-        <Card className="glassmorphism-card border-primary-accent/30 hover:border-secondary-accent/50 transition-all duration-200">
+        <Card className="bg-card border border-gray-300 dark:border-gray-700 hover:border-gray-500 dark:hover:border-gray-400 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-secondary-accent">Total Drivers</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Drivers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{driverStats.total}</div>
-            <p className="text-xs text-gray-400">{driverStats.active} active, {driverStats.inactive} inactive</p>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{driverStats.total}</div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{driverStats.active} active, {driverStats.inactive} inactive</p>
           </CardContent>
         </Card>
       </Link>
       <Link href="/vehicles" className="block">
-        <Card className="glassmorphism-card border-primary-accent/30 hover:border-secondary-accent/50 transition-all duration-200">
+        <Card className="bg-card border border-gray-300 dark:border-gray-700 hover:border-gray-500 dark:hover:border-gray-400 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-secondary-accent">Total Vehicles</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Vehicles</CardTitle>
             <Car className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{vehicleStats.total}</div>
-            <p className="text-xs text-gray-400">{vehicleStats.good} good, {vehicleStats.maintenance} maintenance</p>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{vehicleStats.total}</div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{vehicleStats.good} good, {vehicleStats.maintenance} maintenance</p>
           </CardContent>
         </Card>
       </Link>
       {/* Placeholder for Current Trips and Notifications stats, will be updated with actual data */}
-      <Card className="glassmorphism-card border-primary-accent/30">
+      <Card className="bg-card border border-gray-300 dark:border-gray-700">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-secondary-accent">Current Trips</CardTitle>
+          <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Current Trips</CardTitle>
           <Car className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-white">...</div>
-          <p className="text-xs text-gray-400">Loading...</p>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">...</div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Loading...</p>
         </CardContent>
       </Card>
-      <Card className="glassmorphism-card border-primary-accent/30">
+      <Card className="bg-card border border-gray-300 dark:border-gray-700">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-secondary-accent">New Notifications</CardTitle>
+          <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">New Notifications</CardTitle>
           <Bell className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-white">...</div>
-          <p className="text-xs text-gray-400">Loading...</p>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">...</div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Loading...</p>
         </CardContent>
       </Card>
     </div>

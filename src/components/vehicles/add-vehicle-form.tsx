@@ -113,13 +113,13 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
           name="reg_no"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Registration No.</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Registration No.</FormLabel>
               <FormControl>
                 <Input
                   placeholder="KA01AB1234"
                   {...field}
                   disabled={!!initialData} // Disable editing Reg No for existing vehicles
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -131,12 +131,12 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
           name="company"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Company</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Company</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Tata Motors"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -148,12 +148,12 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
           name="model"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Model</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Model</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Ace Gold"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -165,13 +165,13 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
           name="year"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Year</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Year</FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   placeholder="2020"
                   {...field}
-                  className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
+                  className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -183,10 +183,10 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-text-light">Status</FormLabel>
+              <FormLabel className="text-gray-700 dark:text-gray-300">Status</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent">
+                  <SelectTrigger className="bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                 </FormControl>
@@ -201,7 +201,7 @@ export function AddVehicleForm({ onSuccess, onClose, initialData }: AddVehicleFo
         />
         <Button
           type="submit"
-          className="w-full bg-primary-accent hover:bg-primary-accent/80 text-white font-bold"
+          className="w-full bg-gray-800 hover:bg-gray-700 text-white dark:bg-gray-200 dark:hover:bg-gray-300 dark:text-gray-900 font-bold"
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting ? 'Saving...' : initialData ? 'Update Vehicle' : 'Add Vehicle'}
