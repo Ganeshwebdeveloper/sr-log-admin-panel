@@ -1,4 +1,4 @@
-import { createMiddlewareClient } from '@supabase/ssr/middleware'; // Corrected import path
+import { createMiddlewareClient } from '@supabase/ssr/server'; // Corrected import path
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { Database } from '@/types/supabase';
