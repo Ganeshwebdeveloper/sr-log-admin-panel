@@ -14,7 +14,7 @@ type Driver = Database['public']['Tables']['drivers']['Row'];
 type Vehicle = Database['public']['Tables']['vehicles']['Row'];
 
 type SortColumn = keyof Trip | 'driver_name' | 'vehicle_info';
-type SortDirection = 'asc' | 'desc';
+type SortDirection = 'asc' | 'desc' | null; // Added null for unsorted state
 
 export function useTripsData() {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -34,7 +34,7 @@ export function useTripsData() {
 
   // Sorting states
   const [sortColumn, setSortColumn] = useState<SortColumn>('start_time');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc'); // Default sort: start_time descending
 
   const supabase = supabaseBrowser;
 
@@ -78,7 +78,13 @@ export function useTripsData() {
           dbSortColumn = sortColumn as string; // Direct mapping for other columns
       }
 
-      query = query.order(dbSortColumn, { ascending: sortDirection === 'asc' });
+      // Apply sorting based on current state, or default if unsorted
+      if (sortDirection) {
+        query = query.order(dbSortColumn, { ascending: sortDirection === 'asc' });
+      } else {
+        // Default sort when unsorted
+        query = query.order('start_time', { ascending: false });
+      }
 
       const { data, error } = await query;
 
@@ -155,9 +161,14 @@ export function useTripsData() {
   const handleSort = useCallback((column: SortColumn) => {
     setSortColumn((prevColumn) => {
       if (prevColumn === column) {
-        setSortDirection((prevDirection) => (prevDirection === 'asc' ? 'desc' : 'asc'));
+        // Cycle through 'asc', 'desc', null (unsorted)
+        setSortDirection((prevDirection) => {
+          if (prevDirection === 'asc') return 'desc';
+          if (prevDirection === 'desc') return null;
+          return 'asc'; // If currently null, go to asc
+        });
       } else {
-        setSortColumn(column); // Reset to 'asc' when changing column
+        // New column, start with 'asc'
         setSortDirection('asc');
       }
       return column;
@@ -165,10 +176,10 @@ export function useTripsData() {
   }, []);
 
   const getSortIcon = useCallback((column: SortColumn) => {
-    if (sortColumn === column) {
-      return sortDirection === 'asc' ? '▲' : '▼'; // Using simple characters for now
+    if (sortColumn === column && sortDirection) {
+      return sortDirection === 'asc' ? '▲' : '▼';
     }
-    return null;
+    return null; // No icon if not sorted or unsorted
   }, [sortColumn, sortDirection]);
 
   return {
