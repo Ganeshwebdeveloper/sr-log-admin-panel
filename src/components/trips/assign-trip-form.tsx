@@ -42,12 +42,12 @@ const formSchema = z.object({
   start_time: z.date({ required_error: 'Start time is required.' }),
   driver_salary: z.preprocess(
     (val) => (val === '' ? undefined : Number(val)),
-    z.union([z.number().min(0, { message: 'Driver salary must be a positive number.' }), z.undefined()])
-  ).optional(),
+    z.number().min(0, { message: 'Driver salary must be a positive number.' }).optional()
+  ),
   profit: z.preprocess(
     (val) => (val === '' ? undefined : Number(val)),
-    z.union([z.number(), z.undefined()])
-  ).optional(),
+    z.number().optional()
+  ),
   status: z.enum(['pending', 'started', 'finished'], { message: 'Status is required.' }),
 });
 

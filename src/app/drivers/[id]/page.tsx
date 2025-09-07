@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { Database } from '@/types/supabase';
 import { format, startOfMonth, endOfMonth, getMonth, getYear } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar } => '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
