@@ -45,17 +45,27 @@ export function AuthForm() {
     setLoading(false);
   };
 
-  const handleSendMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } });
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Magic link sent! Check your email.');
-    }
-    setLoading(false);
-  };
+const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    console.error('Auth error:', error.message);
+    return NextResponse.redirect(new URL('/auth/error', request.url));
+  }
+
+  return NextResponse.redirect(new URL(next, request.url));
+}
+
+  // const handleSendMagicLink = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } });
+  //   if (error) {
+  //     toast.error(error.message);
+  //   } else {
+  //     toast.success('Magic link sent! Check your email.');
+  //   }
+  //   setLoading(false);
+  // };
 
   return (
     <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-md border border-primary-accent/30 shadow-lg">
