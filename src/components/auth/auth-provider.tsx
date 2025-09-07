@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Session, User } from '@supabase/supabase-js';
 import { supabaseBrowser } from '@/lib/supabase';
 import { Toaster } from '@/components/ui/sonner'; // Import Toaster for notifications
+import { MainLayout } from "@/components/layout/main-layout"; // Import MainLayout here
 
 interface AuthContextType {
   session: Session | null;
@@ -58,9 +59,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Determine if MainLayout should be rendered
+  // It should be rendered if there's a session AND the current path is not the login page.
+  const shouldRenderMainLayout = session && pathname !== '/login';
+
   return (
     <AuthContext.Provider value={{ session, user, loading }}>
-      {children}
+      {shouldRenderMainLayout ? (
+        <MainLayout>{children}</MainLayout>
+      ) : (
+        children
+      )}
       <Toaster /> {/* Add Toaster here for global notifications */}
     </AuthContext.Provider>
   );

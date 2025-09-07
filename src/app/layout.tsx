@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { ThemeProvider } from "@/components/theme-provider";
-import { MainLayout } from "@/components/layout/main-layout"; // Import MainLayout
+// MainLayout is no longer imported here, it will be handled by AuthProvider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,9 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <MainLayout> {/* Wrap children with MainLayout */}
-              {children}
-            </MainLayout>
+            {children} {/* Children are now passed directly to AuthProvider */}
           </AuthProvider>
         </ThemeProvider>
       </body>
