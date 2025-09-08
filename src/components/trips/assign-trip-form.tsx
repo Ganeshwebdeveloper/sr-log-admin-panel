@@ -40,14 +40,14 @@ const formSchema = z.object({
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
   start_time: z.date({ required_error: 'Start time is required.' }),
-  driver_salary: z.preprocess(
-    (val) => (val === '' ? undefined : val), // Let val be unknown, coerce.number handles conversion
-    z.coerce.number().min(0, { message: 'Driver salary must be a positive number.' }).optional()
-  ),
-  profit: z.preprocess(
-    (val) => (val === '' ? undefined : val), // Let val be unknown, coerce.number handles conversion
-    z.coerce.number().optional()
-  ),
+  driver_salary: z.union([
+    z.literal(''),
+    z.coerce.number().min(0, { message: 'Driver salary must be a positive number.' })
+  ]).transform(e => e === '' ? undefined : e),
+  profit: z.union([
+    z.literal(''),
+    z.coerce.number()
+  ]).transform(e => e === '' ? undefined : e),
   status: z.enum(['pending', 'started', 'finished'], { message: 'Status is required.' }),
 });
 
