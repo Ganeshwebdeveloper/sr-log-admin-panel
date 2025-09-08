@@ -26,6 +26,10 @@ services:
       # Set the DATABASE_URL to reflect the volume mapping
       DATABASE_URL: "file:/app/data/dev.db" # This path should match where your app expects the DB file
 
+      # Supabase Environment Variables
+      # NEXT_PUBLIC_SUPABASE_URL: "https://qxmjzvomldytxbreknjf.supabase.co"
+      # NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4bWp6dm9tbGR5dHhicmVrbmpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNzgxNzcsImV4cCI6MjA3Mjc1NDE3N30.CGKx-SwZ5ikDdHxnhPXeO9KWbX8W_XPQrl6NIWh6RA"
+
       # External API URLs (matching the ones in next.config.ts)
       # Users will need to uncomment and set these values
       # EXTERNAL_API_URL_SERVICE1: "https://api.your-primary-service.com"
