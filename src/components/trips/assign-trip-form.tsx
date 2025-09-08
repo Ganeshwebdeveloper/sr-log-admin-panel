@@ -40,7 +40,7 @@ const formSchema = z.object({
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
   start_time: z.preprocess(
-    (val) => {
+    (val): Date | undefined => { // Explicitly type the return of the preprocess function
       if (val instanceof Date) return val;
       if (typeof val === 'string' || typeof val === 'number') {
         const d = new Date(val);
@@ -98,8 +98,8 @@ export function AssignTripForm({
       origin: initialData?.origin || '',
       destination: initialData?.destination || '',
       start_time: initialData?.start_time ? new Date(initialData.start_time) : new Date(),
-      driver_salary: initialData?.driver_salary, // Allow undefined if not present
-      profit: initialData?.profit, // Allow undefined if not present
+      driver_salary: initialData?.driver_salary ?? null, // Use null for optional nullable numbers
+      profit: initialData?.profit ?? null, // Use null for optional nullable numbers
       status: initialData?.status || 'pending',
     },
   });
