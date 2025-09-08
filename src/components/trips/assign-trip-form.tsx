@@ -44,15 +44,15 @@ const formSchema = z.object({
       if (val instanceof Date) return val;
       if (typeof val === 'string' || typeof val === 'number') {
         const d = new Date(val);
-        return isNaN(d.getTime()) ? undefined : d;
+        return isNaN(d.getTime()) ? undefined : d; // Return undefined for invalid date
       }
-      return undefined;
+      return undefined; // Return undefined for other invalid types
     },
-    z.date().optional() // Make it optional first
-  ).refine((val) => val !== undefined, { // Then refine to make it required
-    message: 'Start time is required.',
-    path: ['start_time'], // Specify path for the error
-  }),
+    z.date({
+      required_error: 'Start time is required.',
+      invalid_type_error: 'Start time must be a valid date.',
+    })
+  ),
   driver_salary: z
     .union([z.coerce.number(), z.null()])
     .optional()
