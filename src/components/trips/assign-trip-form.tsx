@@ -40,14 +40,22 @@ const formSchema = z.object({
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
   start_time: z.date({ required_error: 'Start time is required.' }),
-  driver_salary: z.union([
-    z.literal(''),
-    z.coerce.number().min(0, { message: 'Driver salary must be a positive number.' })
-  ]).transform(e => e === '' ? undefined : e),
-  profit: z.union([
-    z.literal(''),
-    z.coerce.number()
-  ]).transform(e => e === '' ? undefined : e),
+  driver_salary: z.string()
+    .nullable() // Allow null from DB
+    .transform((val) => {
+      if (val === null || val === '') return undefined;
+      const num = Number(val);
+      return isNaN(num) ? undefined : num;
+    })
+    .pipe(z.number().min(0, { message: 'Driver salary must be a positive number.' }).optional()),
+  profit: z.string()
+    .nullable() // Allow null from DB
+    .transform((val) => {
+      if (val === null || val === '') return undefined;
+      const num = Number(val);
+      return isNaN(num) ? undefined : num;
+    })
+    .pipe(z.number().optional()),
   status: z.enum(['pending', 'started', 'finished'], { message: 'Status is required.' }),
 });
 
@@ -306,7 +314,8 @@ export function AssignTripForm({
                   step="0.01"
                   placeholder="1500.00"
                   {...field}
-                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                  value={field.value === undefined ? '' : field.value} // Ensure empty string for undefined
+                  onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                   className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
                 />
               </FormControl>
@@ -326,7 +335,8 @@ export function AssignTripForm({
                   step="0.01"
                   placeholder="500.00"
                   {...field}
-                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                  value={field.value === undefined ? '' : field.value} // Ensure empty string for undefined
+                  onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                   className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
                 />
               </FormControl>
