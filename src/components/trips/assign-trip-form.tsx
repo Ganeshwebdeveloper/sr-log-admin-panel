@@ -98,8 +98,8 @@ export function AssignTripForm({
       origin: initialData?.origin || '',
       destination: initialData?.destination || '',
       start_time: initialData?.start_time ? new Date(initialData.start_time) : new Date(),
-      driver_salary: initialData?.driver_salary ?? null, // Use null for optional nullable numbers
-      profit: initialData?.profit ?? null, // Use null for optional nullable numbers
+      driver_salary: initialData?.driver_salary, // Allow undefined if not present
+      profit: initialData?.profit, // Allow undefined if not present
       status: initialData?.status || 'pending',
     },
   });
@@ -112,8 +112,8 @@ export function AssignTripForm({
         origin: initialData.origin || '',
         destination: initialData.destination || '',
         start_time: initialData.start_time ? new Date(initialData.start_time) : new Date(),
-        driver_salary: initialData.driver_salary ?? null,
-        profit: initialData.profit ?? null,
+        driver_salary: initialData.driver_salary,
+        profit: initialData.profit,
         status: initialData.status,
       });
     }
