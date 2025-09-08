@@ -39,19 +39,31 @@ const formSchema = z.object({
   vehicle_reg_no: z.string().min(1, { message: 'Vehicle is required.' }),
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
-  start_time: z.date({ required_error: 'Start time is required.' }),
-  driver_salary: z.string()
-    .transform((val) => (val === '' ? undefined : Number(val)))
-    .refine((val) => val === undefined || (!isNaN(val) && val >= 0), {
+  start_time: z.preprocess(
+    (val) => {
+      if (val instanceof Date) return val;
+      if (typeof val === 'string' || typeof val === 'number') {
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? undefined : d;
+      }
+      return undefined;
+    },
+    z.date({ required_error: 'Start time is required.' })
+  ),
+  driver_salary: z
+    .union([z.coerce.number(), z.null()])
+    .optional()
+    .nullable()
+    .refine((val) => val === null || val === undefined || val >= 0, {
       message: 'Driver salary must be a positive number.',
-    })
-    .optional(),
-  profit: z.string()
-    .transform((val) => (val === '' ? undefined : Number(val)))
-    .refine((val) => val === undefined || !isNaN(val), {
+    }),
+  profit: z
+    .union([z.coerce.number(), z.null()])
+    .optional()
+    .nullable()
+    .refine((val) => val === null || val === undefined || !isNaN(val), {
       message: 'Profit must be a number.',
-    })
-    .optional(),
+    }),
   status: z.enum(['pending', 'started', 'finished'], { message: 'Status is required.' }),
 });
 
@@ -86,8 +98,8 @@ export function AssignTripForm({
       origin: initialData?.origin || '',
       destination: initialData?.destination || '',
       start_time: initialData?.start_time ? new Date(initialData.start_time) : new Date(),
-      driver_salary: initialData?.driver_salary?.toString() || '', // Convert number to string for input
-      profit: initialData?.profit?.toString() || '', // Convert number to string for input
+      driver_salary: initialData?.driver_salary ?? null, // Use null for optional nullable numbers
+      profit: initialData?.profit ?? null, // Use null for optional nullable numbers
       status: initialData?.status || 'pending',
     },
   });
@@ -100,8 +112,8 @@ export function AssignTripForm({
         origin: initialData.origin || '',
         destination: initialData.destination || '',
         start_time: initialData.start_time ? new Date(initialData.start_time) : new Date(),
-        driver_salary: initialData.driver_salary?.toString() || '', // Convert number to string for input
-        profit: initialData.profit?.toString() || '', // Convert number to string for input
+        driver_salary: initialData.driver_salary ?? null,
+        profit: initialData.profit ?? null,
         status: initialData.status,
       });
     }
@@ -109,8 +121,8 @@ export function AssignTripForm({
 
   const onSubmit = async (values: AssignTripFormValues) => {
     try {
-      const driverSalary = values.driver_salary || 0;
-      const profit = values.profit || 0;
+      const driverSalary = values.driver_salary ?? 0;
+      const profit = values.profit ?? 0;
 
       const totalCost = driverSalary + profit; // Initial calculation
 
@@ -310,6 +322,8 @@ export function AssignTripForm({
                   step="0.01"
                   placeholder="1500.00"
                   {...field}
+                  value={field.value ?? ''} // Use nullish coalescing to display empty string for null/undefined
+                  onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))} // Pass null for empty string
                   className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
                 />
               </FormControl>
@@ -329,6 +343,8 @@ export function AssignTripForm({
                   step="0.01"
                   placeholder="500.00"
                   {...field}
+                  value={field.value ?? ''} // Use nullish coalescing to display empty string for null/undefined
+                  onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))} // Pass null for empty string
                   className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
                 />
               </FormControl>
