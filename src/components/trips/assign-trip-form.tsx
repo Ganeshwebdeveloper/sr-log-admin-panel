@@ -39,20 +39,10 @@ const formSchema = z.object({
   vehicle_reg_no: z.string().min(1, { message: 'Vehicle is required.' }),
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
-  start_time: z.preprocess(
-    (val) => {
-      if (val instanceof Date) return val;
-      if (typeof val === 'string' || typeof val === 'number') {
-        const d = new Date(val);
-        return isNaN(d.getTime()) ? undefined : d; // Return undefined for invalid date
-      }
-      return undefined; // Return undefined for other invalid types
-    },
-    z.date({
-      required_error: 'Start time is required.',
-      invalid_type_error: 'Start time must be a valid date.',
-    })
-  ),
+  start_time: z.coerce.date({ // Using z.coerce.date for robust parsing and validation
+    required_error: 'Start time is required.',
+    invalid_type_error: 'Start time must be a valid date.',
+  }),
   driver_salary: z
     .union([z.coerce.number(), z.null()])
     .optional()
