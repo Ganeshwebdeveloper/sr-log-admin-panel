@@ -41,21 +41,17 @@ const formSchema = z.object({
   destination: z.string().min(1, { message: 'Destination is required.' }),
   start_time: z.date({ required_error: 'Start time is required.' }),
   driver_salary: z.string()
-    .nullable() // Allow null from DB
-    .transform((val) => {
-      if (val === null || val === '') return undefined;
-      const num = Number(val);
-      return isNaN(num) ? undefined : num;
+    .transform((val) => (val === '' ? undefined : Number(val)))
+    .refine((val) => val === undefined || (!isNaN(val) && val >= 0), {
+      message: 'Driver salary must be a positive number.',
     })
-    .pipe(z.number().min(0, { message: 'Driver salary must be a positive number.' }).optional()),
+    .optional(),
   profit: z.string()
-    .nullable() // Allow null from DB
-    .transform((val) => {
-      if (val === null || val === '') return undefined;
-      const num = Number(val);
-      return isNaN(num) ? undefined : num;
+    .transform((val) => (val === '' ? undefined : Number(val)))
+    .refine((val) => val === undefined || !isNaN(val), {
+      message: 'Profit must be a number.',
     })
-    .pipe(z.number().optional()),
+    .optional(),
   status: z.enum(['pending', 'started', 'finished'], { message: 'Status is required.' }),
 });
 
@@ -90,8 +86,8 @@ export function AssignTripForm({
       origin: initialData?.origin || '',
       destination: initialData?.destination || '',
       start_time: initialData?.start_time ? new Date(initialData.start_time) : new Date(),
-      driver_salary: initialData?.driver_salary || undefined,
-      profit: initialData?.profit || undefined,
+      driver_salary: initialData?.driver_salary?.toString() || '', // Convert number to string for input
+      profit: initialData?.profit?.toString() || '', // Convert number to string for input
       status: initialData?.status || 'pending',
     },
   });
@@ -104,8 +100,8 @@ export function AssignTripForm({
         origin: initialData.origin || '',
         destination: initialData.destination || '',
         start_time: initialData.start_time ? new Date(initialData.start_time) : new Date(),
-        driver_salary: initialData.driver_salary || undefined,
-        profit: initialData.profit || undefined,
+        driver_salary: initialData.driver_salary?.toString() || '', // Convert number to string for input
+        profit: initialData.profit?.toString() || '', // Convert number to string for input
         status: initialData.status,
       });
     }
@@ -314,8 +310,6 @@ export function AssignTripForm({
                   step="0.01"
                   placeholder="1500.00"
                   {...field}
-                  value={field.value === undefined ? '' : field.value} // Ensure empty string for undefined
-                  onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                   className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
                 />
               </FormControl>
@@ -335,8 +329,6 @@ export function AssignTripForm({
                   step="0.01"
                   placeholder="500.00"
                   {...field}
-                  value={field.value === undefined ? '' : field.value} // Ensure empty string for undefined
-                  onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                   className="bg-gray-700/50 border-primary-accent/20 text-white focus:border-primary-accent focus:ring-primary-accent"
                 />
               </FormControl>
