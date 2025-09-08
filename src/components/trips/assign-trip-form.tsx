@@ -40,13 +40,13 @@ const formSchema = z.object({
   origin: z.string().min(1, { message: 'Origin is required.' }),
   destination: z.string().min(1, { message: 'Destination is required.' }),
   start_time: z.preprocess(
-    (val): Date | null => { // Explicitly type the return of the preprocess function as Date | null
+    (val): Date | undefined => { // Changed return type to Date | undefined
       if (val instanceof Date) return val;
       if (typeof val === 'string' || typeof val === 'number') {
         const d = new Date(val);
-        return isNaN(d.getTime()) ? null : d; // Return null for invalid date
+        return isNaN(d.getTime()) ? undefined : d; // Return undefined for invalid date
       }
-      return null; // Return null for other invalid types
+      return undefined; // Return undefined for other invalid types
     },
     z.date({ required_error: 'Start time is required.' })
   ),
